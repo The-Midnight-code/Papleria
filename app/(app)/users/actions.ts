@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
-import { activityLogs, users } from "@/db/schema";
+import { activityLogs, sessions, users } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { hashPassword } from "@/lib/auth/password";
 
@@ -142,6 +142,75 @@ export async function toggleUserStatus(
     metadata: {
       username: user.username,
       name: user.name,
+    },
+  });
+
+  return {
+    success: true,
+  };
+}
+
+export async function resetUserPassword(
+  userId: string,
+  password: string,
+  confirmPassword: string,
+): Promise<{ success: true } | { success: false; error: string }> {
+  const admin = await requireAdmin();
+
+  if (password.length < 8) {
+    return {
+      success: false,
+      error: "La contraseña debe tener al menos 8 caracteres.",
+    };
+  }
+
+  if (password !== confirmPassword) {
+    return {
+      success: false,
+      error: "Las contraseñas no coinciden.",
+    };
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, userId),
+  });
+
+  if (!user) {
+    return {
+      success: false,
+      error: "El usuario no existe.",
+    };
+  }
+
+  if (user.id === admin.id) {
+    return {
+      success: false,
+      error: "No puedes restablecer tu propia contraseña.",
+    };
+  }
+
+  const passwordHash = await hashPassword(password);
+
+  await db
+    .update(users)
+    .set({
+      passwordHash,
+      updatedAt: new Date(),
+    })
+    .where(eq(users.id, user.id));
+
+  await db.delete(sessions).where(eq(sessions.userId, user.id));
+
+  await db.insert(activityLogs).values({
+    userId: admin.id,
+    module: "USERS",
+    action: "CHANGE_PASSWORD",
+    entityType: "USER",
+    entityId: user.id,
+    metadata: {
+      username: user.username,
+      name: user.name,
+      resetByAdmin: true,
     },
   });
 

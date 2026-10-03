@@ -5,6 +5,7 @@ import { users } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { CreateUserForm } from "./create-user-form";
 import { ToggleUserStatusButton } from "./toggle-user-status-button";
+import { ResetPasswordButton } from "./reset-password-button";
 
 export default async function UsersPage() {
   const admin = await requireAdmin();
@@ -78,6 +79,9 @@ export default async function UsersPage() {
                   <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
                     Creado
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Acciones
+                  </th>
                 </tr>
               </thead>
 
@@ -140,6 +144,14 @@ export default async function UsersPage() {
                       {new Intl.DateTimeFormat("es-MX", {
                         dateStyle: "medium",
                       }).format(user.createdAt)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {user.id !== admin.id && (
+                        <ResetPasswordButton
+                          userId={user.id}
+                          username={user.username}
+                        />
+                      )}
                     </td>
                   </tr>
                 ))}

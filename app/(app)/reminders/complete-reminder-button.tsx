@@ -1,8 +1,8 @@
 "use client";
 
+import { Check } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { completeReminder } from "./actions";
 
 type CompleteReminderButtonProps = {
@@ -38,9 +38,10 @@ export function CompleteReminderButton({
         type="button"
         onClick={handleComplete}
         disabled={isCompleting}
-        className="rounded-xl bg-[#FFD400] px-4 py-2 text-sm font-bold text-[#176B7A] transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
+        className="inline-flex items-center gap-2 rounded-xl bg-[#FFD400] px-4 py-2.5 text-sm font-bold text-[#176B7A] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
       >
-        {isCompleting ? "Guardando..." : "Marcar como realizado"}
+        <Check className="h-4 w-4" strokeWidth={2.5} />
+        {isCompleting ? "Guardando..." : "Marcar realizado"}
       </button>
 
       {error && <p className="text-xs text-red-300">{error}</p>}
