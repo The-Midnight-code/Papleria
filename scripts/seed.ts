@@ -5,32 +5,43 @@ import argon2 from "argon2";
 import { db } from "../db/db";
 import { users } from "../db/schema";
 
+const admins = [
+  {
+    username: "Erika",
+    password: "admin123",
+    name: "Erika Alvarez",
+  },
+  {
+    username: "admin",
+    password: "admin123",
+    name: "Administrador",
+  },
+];
+
 async function main() {
-  const username = "admin";
-  const password = "admin123";
-  const name = "Administrador";
+  for (const admin of admins) {
+    const existingUser = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.username, admin.username),
+    });
 
-  const existingUser = await db.query.users.findFirst({
-    where: (users, { eq }) => eq(users.username, username),
-  });
+    if (existingUser) {
+      console.log(`User "${admin.username}" already exists.`);
+      continue;
+    }
 
-  if (existingUser) {
-    console.log(`User "${username}" already exists.`);
-    return;
+    const passwordHash = await argon2.hash(admin.password);
+
+    await db.insert(users).values({
+      name: admin.name,
+      username: admin.username,
+      passwordHash,
+      role: "ADMIN",
+    });
+
+    console.log(`Admin "${admin.username}" created successfully.`);
+    console.log(`Username: ${admin.username}`);
+    console.log(`Password: ${admin.password}`);
   }
-
-  const passwordHash = await argon2.hash(password);
-
-  await db.insert(users).values({
-    name,
-    username,
-    passwordHash,
-    role: "ADMIN",
-  });
-
-  console.log("Initial admin created successfully.");
-  console.log(`Username: ${username}`);
-  console.log(`Password: ${password}`);
 }
 
 main()
