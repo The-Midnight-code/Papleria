@@ -84,6 +84,7 @@ export async function createUser(
     });
 
   await db.insert(activityLogs).values({
+    userId: admin.id,
     module: "USERS",
     action: "CREATE",
     entityType: "USER",
@@ -91,7 +92,6 @@ export async function createUser(
     metadata: {
       username: newUser.username,
       name: newUser.name,
-      performedBy: admin.id,
     },
   });
 
@@ -134,6 +134,7 @@ export async function toggleUserStatus(
     .where(eq(users.id, userId));
 
   await db.insert(activityLogs).values({
+    userId: admin.id,
     module: "USERS",
     action: newActiveStatus ? "ACTIVATE" : "DEACTIVATE",
     entityType: "USER",
@@ -141,7 +142,6 @@ export async function toggleUserStatus(
     metadata: {
       username: user.username,
       name: user.name,
-      performedBy: admin.id,
     },
   });
 

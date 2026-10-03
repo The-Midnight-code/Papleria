@@ -73,9 +73,12 @@ export default function Navbar({ user }: NavbarProps) {
 
         {/* User */}
         <div className="ml-auto flex items-center gap-3">
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-medium text-white">{user.name}</p>
-          </div>
+          <Link
+            href="/profile"
+            className="rounded-xl px-3 py-2 transition hover:bg-white/10"
+          >
+            <p className="text-sm font-semibold text-white">{user.name}</p>
+          </Link>
 
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFD400] font-semibold text-[#176B7A]">
             {user.name.charAt(0).toUpperCase()}

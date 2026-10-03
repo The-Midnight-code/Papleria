@@ -1,4 +1,4 @@
-import { and, desc, gte, lt, sql } from "drizzle-orm";
+import { and, desc, gte, lt, sql, eq } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { activityLogs, users } from "@/db/schema";
@@ -12,6 +12,10 @@ function getActionLabel(action: string) {
     DEACTIVATE: "Desactivó usuario",
     PAID: "Marcó como pagado",
     UNPAID: "Marcó como no pagado",
+    UPDATE_PAYMENT_STATUS: "Actualizó estado de pago",
+    DELETE_LIST: "Eliminó lista",
+    CHANGE_PASSWORD: "Cambió su contraseña",
+    UPDATE_PROFILE: "Actualizó su perfil",
   };
 
   return labels[action] ?? action;
@@ -63,10 +67,7 @@ export default async function ActivityPage({
       },
     })
     .from(activityLogs)
-    .leftJoin(
-      users,
-      sql`${users.id} = (${activityLogs.metadata}->>'performedBy')::uuid`,
-    )
+    .leftJoin(users, eq(users.id, activityLogs.userId))
     .where(
       and(
         gte(activityLogs.createdAt, startOfDay),
