@@ -16,6 +16,7 @@ function getActionLabel(action: string) {
     DELETE_LIST: "Eliminó lista",
     CHANGE_PASSWORD: "Cambió su contraseña",
     UPDATE_PROFILE: "Actualizó su perfil",
+    COMPLETE: "Marcó como realizado",
   };
 
   return labels[action] ?? action;

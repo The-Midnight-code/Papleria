@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut } from "lucide-react";
+import { ReminderBell } from "./reminders/reminder-bell";
 
 type NavbarProps = {
   user: {
@@ -84,6 +85,7 @@ export default function Navbar({ user }: NavbarProps) {
             {user.name.charAt(0).toUpperCase()}
           </div>
 
+          <ReminderBell />
           <form action="/logout" method="POST">
             <button
               type="submit"
