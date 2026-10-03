@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: papeleria-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: papeleria
+      POSTGRES_USER: papeleria
+      POSTGRES_PASSWORD: papeleria_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - papeleria_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  papeleria_postgres_data:

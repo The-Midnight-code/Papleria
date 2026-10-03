@@ -6,10 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:test": "tsx scripts/test-db.ts",
+    "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "argon2": "^0.45.1",
+    "dotenv": "^18.0.5",
     "drizzle-orm": "^0.45.3",
     "next": "16.3.8",
     "pg": "^8.23.1",
@@ -26,6 +32,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "tailwindcss": "^4",
+    "tsx": "^4.23.15",
     "typescript": "^5"
   }
 }
