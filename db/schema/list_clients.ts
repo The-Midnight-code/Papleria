@@ -24,6 +24,10 @@ export const listClients = pgTable(
       .notNull()
       .default("UNPAID"),
 
+    paidAt: timestamp("paid_at", {
+      withTimezone: true,
+    }),
+
     createdAt: timestamp("created_at", {
       withTimezone: true,
     })
