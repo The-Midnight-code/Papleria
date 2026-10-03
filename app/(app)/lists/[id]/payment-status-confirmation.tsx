@@ -2,6 +2,7 @@
 
 type PaymentStatusConfirmationProps = {
   open: boolean;
+  clientName: string;
   currentStatus: "UNPAID" | "PAID";
   onConfirm: () => void;
   onCancel: () => void;
@@ -9,6 +10,7 @@ type PaymentStatusConfirmationProps = {
 
 export default function PaymentStatusConfirmation({
   open,
+  clientName,
   currentStatus,
   onConfirm,
   onCancel,
@@ -28,7 +30,8 @@ export default function PaymentStatusConfirmation({
           <h2 className="text-lg font-bold text-gray-900">Cambiar estado</h2>
 
           <p className="mt-2 text-sm leading-6 text-gray-600">
-            ¿Deseas cambiar el estado de este cliente a{" "}
+            ¿Deseas cambiar el estado de{" "}
+            <span className="font-semibold text-gray-900">{clientName}</span> a{" "}
             <span className="font-semibold text-[#176B7A]">{nextStatus}</span>?
           </p>
         </div>

@@ -7,12 +7,14 @@ import PaymentStatusConfirmation from "./payment-status-confirmation";
 
 type PaymentStatusButtonProps = {
   listClientId: string;
+  clientName: string;
   paymentStatus: "UNPAID" | "PAID";
   children: React.ReactNode;
 };
 
 export function PaymentStatusButton({
   listClientId,
+  clientName,
   paymentStatus,
   children,
 }: PaymentStatusButtonProps) {
@@ -49,6 +51,7 @@ export function PaymentStatusButton({
           <td colSpan={4}>
             <PaymentStatusConfirmation
               open={showConfirmation}
+              clientName={clientName}
               currentStatus={paymentStatus}
               onConfirm={handleConfirm}
               onCancel={() => setShowConfirmation(false)}

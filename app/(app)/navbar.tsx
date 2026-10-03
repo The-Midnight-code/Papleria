@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { LogOut } from "lucide-react";
 
 type NavbarProps = {
   user: {
@@ -74,10 +75,6 @@ export default function Navbar({ user }: NavbarProps) {
         <div className="ml-auto flex items-center gap-3">
           <div className="hidden text-right sm:block">
             <p className="text-sm font-medium text-white">{user.name}</p>
-
-            <p className="text-xs text-white/60">
-              {user.role === "ADMIN" ? "Administrador" : "Empleado"}
-            </p>
           </div>
 
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#FFD400] font-semibold text-[#176B7A]">
@@ -88,9 +85,14 @@ export default function Navbar({ user }: NavbarProps) {
             <button
               type="submit"
               title="Cerrar sesión"
-              className="rounded-lg px-3 py-2 text-sm text-gray-500 transition hover:bg-red-50 hover:text-red-600"
+              aria-label="Cerrar sesión"
+              className="group flex h-10 w-10 items-center justify-center rounded-xl text-white/70 transition hover:bg-white/10 hover:text-[#FFD400]"
             >
-              🚪
+              <LogOut
+                size={20}
+                strokeWidth={2.2}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
             </button>
           </form>
         </div>

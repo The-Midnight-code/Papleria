@@ -116,6 +116,7 @@ export default function ClientsSearch({ clients }: ClientsSearchProps) {
                 <PaymentStatusButton
                   key={relation.id}
                   listClientId={relation.id}
+                  clientName={relation.client.name}
                   paymentStatus={relation.paymentStatus}
                 >
                   <td className="px-6 py-4">
