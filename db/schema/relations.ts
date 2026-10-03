@@ -6,11 +6,14 @@ import { listClients } from "./list_clients";
 import { lists } from "./lists";
 import { sessions } from "./sessions";
 import { users } from "./users";
+import { reminders } from "./reminders";
+import { userReminders } from "./user_reminders";
 
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   lists: many(lists),
   activityLogs: many(activityLogs),
+  userReminders: many(userReminders),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -48,6 +51,27 @@ export const listClientsRelations = relations(listClients, ({ one }) => ({
 export const activityLogsRelations = relations(activityLogs, ({ one }) => ({
   user: one(users, {
     fields: [activityLogs.userId],
+    references: [users.id],
+  }),
+}));
+
+export const remindersRelations = relations(reminders, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [reminders.createdBy],
+    references: [users.id],
+  }),
+
+  userReminders: many(userReminders),
+}));
+
+export const userRemindersRelations = relations(userReminders, ({ one }) => ({
+  reminder: one(reminders, {
+    fields: [userReminders.reminderId],
+    references: [reminders.id],
+  }),
+
+  user: one(users, {
+    fields: [userReminders.userId],
     references: [users.id],
   }),
 }));

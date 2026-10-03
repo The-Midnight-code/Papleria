@@ -5,3 +5,5 @@ export * from "./lists";
 export * from "./list_clients";
 export * from "./activity_logs";
 export * from "./relations";
+export * from "./reminders";
+export * from "./user_reminders";
