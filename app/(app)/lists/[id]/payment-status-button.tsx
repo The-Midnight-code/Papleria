@@ -39,26 +39,23 @@ export function PaymentStatusButton({
 
   return (
     <>
-      <tr
+      <button
+        type="button"
         onClick={handleClick}
-        className="cursor-pointer transition-colors hover:bg-gray-50"
+        disabled={isUpdating}
+        aria-label={`Cambiar estado de pago de ${clientName}`}
+        className="cursor-pointer rounded-full text-left transition-opacity hover:opacity-80 disabled:cursor-wait disabled:opacity-50"
       >
-        {children}
-      </tr>
+        {children}{" "}
+      </button>
 
-      {showConfirmation && (
-        <tr>
-          <td colSpan={4}>
-            <PaymentStatusConfirmation
-              open={showConfirmation}
-              clientName={clientName}
-              currentStatus={paymentStatus}
-              onConfirm={handleConfirm}
-              onCancel={() => setShowConfirmation(false)}
-            />
-          </td>
-        </tr>
-      )}
+      <PaymentStatusConfirmation
+        open={showConfirmation}
+        clientName={clientName}
+        currentStatus={paymentStatus}
+        onConfirm={handleConfirm}
+        onCancel={() => setShowConfirmation(false)}
+      />
     </>
   );
 }
