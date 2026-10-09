@@ -13,6 +13,8 @@ type ListItem = {
   };
   clients: {
     id: string;
+    paymentStatus: "UNPAID" | "PAID";
+    deliveryStatus: "PENDING" | "DELIVERED";
   }[];
 };
 
@@ -41,7 +43,9 @@ export default function ListsSearch({ lists, isAdmin }: ListsSearchProps) {
 
   return (
     <>
+      {" "}
       <div className="mb-6 rounded-2xl bg-white p-4 shadow-lg">
+        {" "}
         <div className="relative">
           <input
             type="search"
@@ -50,53 +54,116 @@ export default function ListsSearch({ lists, isAdmin }: ListsSearchProps) {
             placeholder="Buscar lista o creador..."
             className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 pl-11 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#176B7A] focus:bg-white focus:ring-2 focus:ring-[#176B7A]/20"
           />
-
+          ```
           <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
             🔎
           </span>
         </div>
       </div>
-
       {filteredLists.length === 0 ? (
         <div className="rounded-2xl bg-white px-6 py-12 text-center shadow-lg">
           <p className="font-medium text-gray-900">No se encontraron listas</p>
-
           <p className="mt-1 text-sm text-gray-500">
             Intenta con otro término de búsqueda.
           </p>
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-          {filteredLists.map((list) => (
-            <div
-              key={list.id}
-              className="group overflow-hidden rounded-2xl bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
-            >
-              <Link href={`/lists/${list.id}`} className="block p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-[#176B7A]">
-                      Lista
-                    </p>
+          {filteredLists.map((list) => {
+            const total = list.clients.length;
 
-                    <h2 className="mt-2 truncate text-lg font-bold text-gray-900">
-                      {list.name}
-                    </h2>
+            const paidCount = list.clients.filter(
+              (client) => client.paymentStatus === "PAID",
+            ).length;
+
+            const deliveredCount = list.clients.filter(
+              (client) => client.deliveryStatus === "DELIVERED",
+            ).length;
+
+            const deliveredUnpaidCount = list.clients.filter(
+              (client) =>
+                client.deliveryStatus === "DELIVERED" &&
+                client.paymentStatus === "UNPAID",
+            ).length;
+
+            return (
+              <div
+                key={list.id}
+                className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
+              >
+                <Link
+                  href={`/lists/${list.id}`}
+                  className="flex flex-1 flex-col p-6"
+                >
+                  {/* Encabezado de la tarjeta */}
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[#176B7A]">
+                        Lista
+                      </p>
+
+                      <h2 className="mt-2 truncate text-lg font-bold text-gray-900">
+                        {list.name}
+                      </h2>
+                    </div>
+
+                    <span className="shrink-0 rounded-xl bg-[#53B0C9]/20 px-3 py-2 text-center">
+                      <span className="block text-lg font-bold leading-none text-[#176B7A]">
+                        {total}
+                      </span>
+
+                      <span className="mt-1 block text-[11px] font-medium text-[#176B7A]/70">
+                        {total === 1 ? "persona" : "personas"}
+                      </span>
+                    </span>
                   </div>
 
-                  <span className="shrink-0 rounded-xl bg-[#53B0C9]/20 px-3 py-2 text-center">
-                    <span className="block text-lg font-bold leading-none text-[#176B7A]">
-                      {list.clients.length}
-                    </span>
+                  {/* Resumen de pago y entrega */}
+                  <div className="mt-5 space-y-3 border-t border-gray-100 pt-4">
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="shrink-0 text-gray-500">Pago</span>
 
-                    <span className="mt-1 block text-[11px] font-medium text-[#176B7A]/70">
-                      {list.clients.length === 1 ? "persona" : "personas"}
-                    </span>
-                  </span>
-                </div>
+                      <span className="text-right">
+                        <span className="font-semibold text-emerald-700">
+                          {paidCount} pagaron
+                        </span>
 
-                <div className="mt-6 border-t border-gray-100 pt-4">
-                  <div className="flex items-center justify-between gap-4">
+                        <span className="mx-2 text-gray-300">·</span>
+
+                        <span className="text-gray-600">
+                          {total - paidCount} pendientes
+                        </span>
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 text-sm">
+                      <span className="shrink-0 text-gray-500">Entrega</span>
+
+                      <span className="text-right">
+                        <span className="font-semibold text-[#176B7A]">
+                          {deliveredCount} entregados
+                        </span>
+
+                        <span className="mx-2 text-gray-300">·</span>
+
+                        <span className="text-gray-600">
+                          {total - deliveredCount} pendientes
+                        </span>
+                      </span>
+                    </div>
+
+                    <div className="mt-3 min-h-8">
+                      {deliveredUnpaidCount > 0 && (
+                        <div className="rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800">
+                          <span aria-hidden="true">⚠ </span>
+                          {deliveredUnpaidCount} entregado(s) sin pagar
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Creador, fecha y navegación */}
+                  <div className="mt-auto flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
                     <div className="min-w-0 text-sm">
                       <p className="truncate text-gray-500">
                         Creada por{" "}
@@ -116,16 +183,17 @@ export default function ListsSearch({ lists, isAdmin }: ListsSearchProps) {
                       Ver lista →
                     </span>
                   </div>
-                </div>
-              </Link>
+                </Link>
 
-              {isAdmin && (
-                <div className="border-t border-gray-100 px-6 py-3">
-                  <DeleteListButton listId={list.id} listName={list.name} />
-                </div>
-              )}
-            </div>
-          ))}
+                {/* Acciones exclusivas del administrador */}
+                {isAdmin && (
+                  <div className="border-t border-gray-100 px-6 py-3">
+                    <DeleteListButton listId={list.id} listName={list.name} />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </>
