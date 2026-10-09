@@ -127,3 +127,58 @@ export async function togglePaymentStatus(listClientId: string) {
     success: true,
   };
 }
+
+export async function toggleDeliveryStatus(listClientId: string) {
+  const user = await requireUser();
+
+  const relation = await db.query.listClients.findFirst({
+    where: eq(listClients.id, listClientId),
+    with: {
+      list: true,
+      client: true,
+    },
+  });
+
+  if (!relation) {
+    return {
+      error: "La persona no pertenece a ninguna lista.",
+    };
+  }
+
+  const previousStatus = relation.deliveryStatus;
+  const newStatus = previousStatus === "PENDING" ? "DELIVERED" : "PENDING";
+  const now = new Date();
+
+  await db.transaction(async (tx) => {
+    await tx
+      .update(listClients)
+      .set({
+        deliveryStatus: newStatus,
+        deliveredAt: newStatus === "DELIVERED" ? now : null,
+        updatedAt: now,
+      })
+      .where(eq(listClients.id, listClientId));
+
+    await tx.insert(activityLogs).values({
+      userId: user.id,
+      module: "LISTS",
+      action: "UPDATE_DELIVERY_STATUS",
+      entityType: "LIST_CLIENT",
+      entityId: listClientId,
+      previousValue: previousStatus,
+      newValue: newStatus,
+      metadata: {
+        listId: relation.listId,
+        listName: relation.list.name,
+        clientId: relation.clientId,
+        clientName: relation.client.name,
+      },
+    });
+  });
+
+  revalidatePath(`/lists/${relation.listId}`);
+
+  return {
+    success: true,
+  };
+}

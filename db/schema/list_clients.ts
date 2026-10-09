@@ -4,6 +4,10 @@ import { clients } from "./clients";
 import { lists } from "./lists";
 
 export const paymentStatusEnum = pgEnum("payment_status", ["UNPAID", "PAID"]);
+export const deliveryStatusEnum = pgEnum("delivery_status", [
+  "PENDING",
+  "DELIVERED",
+]);
 
 export const listClients = pgTable(
   "list_clients",
@@ -25,6 +29,14 @@ export const listClients = pgTable(
       .default("UNPAID"),
 
     paidAt: timestamp("paid_at", {
+      withTimezone: true,
+    }),
+
+    deliveryStatus: deliveryStatusEnum("delivery_status")
+      .notNull()
+      .default("PENDING"),
+
+    deliveredAt: timestamp("delivered_at", {
       withTimezone: true,
     }),
 
