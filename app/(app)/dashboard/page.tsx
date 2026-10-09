@@ -42,7 +42,7 @@ export default async function DashboardPage() {
           <h2 className="mt-5 text-lg font-bold text-gray-900">Listas</h2>
 
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Consulta y administra las listas de clientes y sus pagos.
+            Consulta y administra las listas de personas, sus pagos y entregas.
           </p>
 
           <div className="mt-5 text-sm font-semibold text-[#176B7A]">

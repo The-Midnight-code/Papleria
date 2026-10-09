@@ -76,7 +76,7 @@ export default function ListsSearch({ lists, isAdmin }: ListsSearchProps) {
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <p className="text-xs font-semibold uppercase tracking-wide text-[#176B7A]">
-                      Lista de clientes
+                      Lista
                     </p>
 
                     <h2 className="mt-2 truncate text-lg font-bold text-gray-900">
@@ -90,7 +90,7 @@ export default function ListsSearch({ lists, isAdmin }: ListsSearchProps) {
                     </span>
 
                     <span className="mt-1 block text-[11px] font-medium text-[#176B7A]/70">
-                      {list.clients.length === 1 ? "cliente" : "clientes"}
+                      {list.clients.length === 1 ? "persona" : "personas"}
                     </span>
                   </span>
                 </div>

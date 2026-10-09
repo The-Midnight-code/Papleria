@@ -47,7 +47,7 @@ export default async function ListPage({ params }: ListPageProps) {
           <div>
             <div>
               <p className="text-sm font-medium text-white/60">
-                Lista de clientes
+                Detalle de la lista
               </p>
 
               <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
@@ -84,11 +84,11 @@ export default async function ListPage({ params }: ListPageProps) {
           </div>
 
           <h2 className="font-semibold text-gray-900">
-            No hay clientes en esta lista
+            No hay personas en esta lista
           </h2>
 
           <p className="mt-1 text-sm text-gray-500">
-            Agrega el primer cliente para comenzar.
+            Agrega la primera persona para comenzar.
           </p>
         </div>
       ) : (

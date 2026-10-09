@@ -37,7 +37,7 @@ export function AddClientForm({ listId }: AddClientFormProps) {
         }}
         className="rounded-xl bg-[#FFD400] px-4 py-2.5 text-sm font-semibold text-[#176B7A] shadow-sm transition hover:bg-[#e6bf00]"
       >
-        + Agregar cliente
+        + Agregar persona
       </button>
 
       {open && (
@@ -45,11 +45,11 @@ export function AddClientForm({ listId }: AddClientFormProps) {
           <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
             <div className="mb-6">
               <h2 className="text-lg font-bold text-gray-900">
-                Agregar cliente
+                Agregar persona
               </h2>
 
               <p className="mt-1 text-sm text-gray-500">
-                Ingresa el nombre del cliente.
+                Ingresa el nombre de la persona.
               </p>
             </div>
 

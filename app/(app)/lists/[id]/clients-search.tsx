@@ -45,19 +45,19 @@ export default function ClientsSearch({ clients }: ClientsSearchProps) {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h2 className="font-semibold text-gray-900">
-              Clientes ({filteredClients.length}
+              Personas ({filteredClients.length}
               {search.trim() ? ` de ${clients.length}` : ""})
             </h2>
 
             <p className="mt-1 text-sm text-gray-500">
               <span className="font-medium text-green-600">
-                {paidCount} pagados
+                {paidCount} pagaron
               </span>
 
               <span className="mx-2 text-gray-300">•</span>
 
               <span className="font-medium text-red-600">
-                {unpaidCount} no pagados
+                {unpaidCount} no pagaron
               </span>
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function ClientsSearch({ clients }: ClientsSearchProps) {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar cliente..."
+              placeholder="Buscar persona..."
               className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-2.5 pl-10 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-[#176B7A] focus:bg-white focus:ring-2 focus:ring-[#176B7A]/20"
             />
 
@@ -81,7 +81,7 @@ export default function ClientsSearch({ clients }: ClientsSearchProps) {
       {filteredClients.length === 0 ? (
         <div className="px-6 py-12 text-center">
           <p className="font-medium text-gray-900">
-            No se encontraron clientes
+            No se encontraron personas
           </p>
 
           <p className="mt-1 text-sm text-gray-500">
@@ -94,7 +94,7 @@ export default function ClientsSearch({ clients }: ClientsSearchProps) {
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50">
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                  Cliente
+                  Persona
                 </th>
 
                 <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">

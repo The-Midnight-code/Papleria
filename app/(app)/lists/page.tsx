@@ -20,16 +20,14 @@ export default async function ListsPage() {
     <div className="p-6 md:p-8">
       <div className="mb-8 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-white/60">
-            Gestión de clientes
-          </p>
+          <p className="text-sm font-medium text-white/60">Gestión de listas</p>
 
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-white">
             Listas
           </h1>
 
           <p className="mt-2 text-sm text-white/70">
-            Administra y consulta las listas de clientes.
+            Administra las listas y consulta su estado de pago y entrega.
           </p>
         </div>
 
@@ -55,7 +53,7 @@ export default async function ListsPage() {
 
           <p className="mx-auto mt-1 max-w-md text-sm text-gray-500">
             Crea tu primera lista para comenzar a agregar y administrar
-            clientes.
+            personas.
           </p>
 
           <div className="mt-6">
