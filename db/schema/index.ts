@@ -7,3 +7,5 @@ export * from "./activity_logs";
 export * from "./relations";
 export * from "./reminders";
 export * from "./user_reminders";
+export * from "./services";
+export * from "./service_orders";

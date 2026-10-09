@@ -8,12 +8,16 @@ import { sessions } from "./sessions";
 import { users } from "./users";
 import { reminders } from "./reminders";
 import { userReminders } from "./user_reminders";
+import { services } from "./services";
+import { serviceOrders } from "./service_orders";
 
 export const usersRelations = relations(users, ({ many }) => ({
   sessions: many(sessions),
   lists: many(lists),
   activityLogs: many(activityLogs),
   userReminders: many(userReminders),
+  services: many(services),
+  serviceOrders: many(serviceOrders),
 }));
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
@@ -72,6 +76,25 @@ export const userRemindersRelations = relations(userReminders, ({ one }) => ({
 
   user: one(users, {
     fields: [userReminders.userId],
+    references: [users.id],
+  }),
+}));
+
+export const servicesRelations = relations(services, ({ one, many }) => ({
+  creator: one(users, {
+    fields: [services.createdBy],
+    references: [users.id],
+  }),
+  orders: many(serviceOrders),
+}));
+
+export const serviceOrdersRelations = relations(serviceOrders, ({ one }) => ({
+  service: one(services, {
+    fields: [serviceOrders.serviceId],
+    references: [services.id],
+  }),
+  creator: one(users, {
+    fields: [serviceOrders.createdBy],
     references: [users.id],
   }),
 }));
