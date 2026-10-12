@@ -188,7 +188,7 @@ export default function PublicServicesCatalog({
           <div className="-ml-4 flex touch-pan-y">
             {services.map((service) => (
               <div key={service.id} className="min-w-0 flex-[0_0_100%] pl-4 sm:flex-[0_0_50%] lg:flex-[0_0_25%]">
-                <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-white/70 bg-white shadow-md transition duration-200 hover:-translate-y-1 hover:shadow-xl">
+                <article className="flex h-full flex-col overflow-hidden rounded-xl border border-white/70 bg-white shadow-md">
                   <ServiceImage service={service} />
                   <div className="flex flex-1 flex-col p-4">
                     <h3 className="text-base font-extrabold leading-snug text-slate-900 sm:text-lg">{service.name}</h3>
@@ -240,7 +240,7 @@ export default function PublicServicesCatalog({
           {services.map((service) => (
             <article
               key={service.id}
-              className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#176B7A]/30 hover:shadow-md sm:p-5"
+              className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
             >
               <ServiceImage service={service} compact />
               <div className="flex min-w-0 flex-1 flex-col items-start">
