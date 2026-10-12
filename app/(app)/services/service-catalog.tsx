@@ -161,65 +161,79 @@ export function ServiceCatalog({ services }: Props) {
                   </div>
                 )}
                 <div className="flex flex-1 flex-col gap-4 p-5">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#176B7A]">
-                      {service.category}
-                    </p>
-                    <h3 className="mt-1 break-words text-lg font-bold text-gray-900">
-                      {service.name}
-                    </h3>
-                    {service.description && (
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-gray-600">
-                        {service.description}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#176B7A]">
+                        {service.category}
                       </p>
+                      <h3 className="mt-1 break-words text-lg font-bold leading-snug text-gray-900">
+                        {service.name}
+                      </h3>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-1.5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          service.active
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        <span className={`size-1.5 rounded-full ${service.active ? "bg-emerald-500" : "bg-gray-400"}`} aria-hidden="true" />
+                        {service.active ? "Activo" : "Inactivo"}
+                      </span>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+                          service.published
+                            ? "bg-sky-50 text-sky-700"
+                            : "bg-amber-50 text-amber-700"
+                        }`}
+                      >
+                        {service.published ? "Publicado" : "No publicado"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {service.description && (
+                    <p className="line-clamp-2 text-sm leading-6 text-gray-600">
+                      {service.description}
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                        {service.requiresQuote ? "Costo" : "Precio del servicio"}
+                      </p>
+                      <p className="mt-0.5 text-lg font-bold text-gray-900">
+                        {service.requiresQuote
+                          ? "Por cotización"
+                          : `${Number(service.price).toFixed(2)} MXN`}
+                      </p>
+                    </div>
+                    {service.estimatedDays && (
+                      <div className="text-right">
+                        <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+                          Tiempo estimado
+                        </p>
+                        <p className="mt-0.5 text-sm font-semibold text-gray-800">
+                          {service.estimatedDays} {service.estimatedDays === 1 ? "día" : "días"}
+                        </p>
+                      </div>
                     )}
                   </div>
-                  <span
-                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold ${
-                      service.active
-                        ? "bg-emerald-50 text-emerald-700"
-                        : "bg-gray-100 text-gray-600"
-                    }`}
-                  >
-                    {service.active ? "Activo" : "Inactivo"}
-                  </span>
-                </div>
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-gray-50 px-4 py-3 text-sm">
-                  <span className="font-semibold text-gray-900">
-                    {service.requiresQuote
-                      ? "Precio por cotización"
-                      : `$${Number(service.price).toFixed(2)} MXN`}
-                  </span>
-                  {service.estimatedDays && (
-                    <span className="text-gray-600">
-                      Tiempo estimado: {service.estimatedDays} día(s)
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-gray-100 pt-4">
-                  <div className="space-y-2">
-                    <span
-                      className={`block text-sm font-medium ${
-                        service.published ? "text-[#176B7A]" : "text-gray-500"
-                      }`}
-                    >
-                      {service.published ? "Publicado" : "No publicado"}
-                    </span>
+                  <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-4">
                     <ServiceStatusButton
                       serviceId={service.id}
                       active={service.active}
                     />
+                    <Link
+                      href={`/services/${service.id}/edit`}
+                      className="inline-flex min-h-10 items-center justify-center rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-800 transition hover:border-[#176B7A]/40 hover:bg-[#176B7A]/5 hover:text-[#125663] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176B7A]"
+                    >
+                      Editar servicio <span aria-hidden="true" className="ml-2">→</span>
+                    </Link>
                   </div>
-                  <Link
-                    href={`/services/${service.id}/edit`}
-                    className="inline-flex min-h-10 items-center justify-center rounded-xl border border-gray-200 px-4 py-2.5 text-sm font-semibold text-gray-800 transition hover:border-[#176B7A]/40 hover:bg-[#176B7A]/5 hover:text-[#125663] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176B7A]"
-                  >
-                    Editar servicio <span aria-hidden="true" className="ml-2">→</span>
-                  </Link>
-                </div>
                 </div>
               </article>
             ))}
