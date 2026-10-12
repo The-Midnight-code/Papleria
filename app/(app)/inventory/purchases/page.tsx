@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/db";
 import { products, purchaseItems, purchases, users } from "@/db/schema";
 import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
@@ -19,7 +19,7 @@ export default async function PurchasesPage() {
   const items = purchaseIds.length ? await db.select({
     purchaseId: purchaseItems.purchaseId, productName: products.name, sku: products.sku,
     quantity: purchaseItems.quantity, unitCost: purchaseItems.unitCost, lineTotal: purchaseItems.lineTotal,
-  }).from(purchaseItems).innerJoin(products, eq(purchaseItems.productId, products.id)) : [];
+  }).from(purchaseItems).innerJoin(products, eq(purchaseItems.productId, products.id)).where(inArray(purchaseItems.purchaseId, purchaseIds)) : [];
   const itemMap = new Map<string, typeof items>();
   for (const item of items) itemMap.set(item.purchaseId, [...(itemMap.get(item.purchaseId) ?? []), item]);
   return <main className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
