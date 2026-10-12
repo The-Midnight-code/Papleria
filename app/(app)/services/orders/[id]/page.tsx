@@ -279,8 +279,8 @@ export default async function ServiceOrderDetailPage({
             {formatDate(order.requestedDeliveryDate)}
           </DetailItem></div>
 
-          <div className="rounded-xl border border-[#FFD400]/50 bg-amber-50/60 p-4"><DetailItem label="Fecha prometida">
-            {formatDate(order.promisedDeliveryDate)}
+          <div className={`rounded-xl border p-4 ${order.promisedDeliveryDate ? "border-[#FFD400]/50 bg-amber-50/60" : "border-amber-200 bg-amber-50"}`}><DetailItem label="Fecha prometida">
+            {order.promisedDeliveryDate ? formatDate(order.promisedDeliveryDate) : <span className="font-semibold text-amber-800">Sin fecha · pendiente de definir</span>}
           </DetailItem></div>
         </div>
       </section>
