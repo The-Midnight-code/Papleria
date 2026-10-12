@@ -30,6 +30,8 @@ export async function registerCashMovement(formData: FormData) {
     if (notes && notes.length > 1000) return { error: "Las notas admiten hasta 1000 caracteres." };
     const amountCents = cents(Number(amountRaw));
     const saved = await db.transaction(async tx => {
+      // Comparte el bloqueo con ventas y cierre del mismo día operativo.
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ${businessDate}))`);
       const existingClosure = await tx.select({id:cashClosures.id}).from(cashClosures).where(eq(cashClosures.businessDate,businessDate)).limit(1);
       if (existingClosure.length) throw new Error("La caja de este día ya está cerrada. No se permiten más movimientos.");
       if (type === "opening") {
@@ -62,6 +64,8 @@ export async function closeCashDay(formData: FormData) {
     if (notes && notes.length > 1000) return { error: "Las notas admiten hasta 1000 caracteres." };
     const cashCountedCents = cents(Number(countedRaw));
     const closure = await db.transaction(async tx => {
+      // Espera a que terminen ventas/movimientos y bloquea nuevas operaciones hasta cerrar.
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ${businessDate}))`);
       const existing = await tx.select({id:cashClosures.id}).from(cashClosures).where(eq(cashClosures.businessDate,businessDate)).limit(1);
       if (existing.length) throw new Error("Ese día ya tiene un corte de caja registrado. Los cierres no se pueden duplicar.");
       const daySales = await tx.select({paymentMethod:sales.paymentMethod,total:sales.total}).from(sales).where(and(
