@@ -19,9 +19,17 @@ const currency = new Intl.NumberFormat("es-MX", {
   currency: "MXN",
 });
 
-function ServiceImage({ service, compact = false }: { service: PublicService; compact?: boolean }) {
+function ServiceImage({
+  service,
+  compact = false,
+}: {
+  service: PublicService;
+  compact?: boolean;
+}) {
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-white to-amber-50 ${compact ? "h-32 w-32 shrink-0 rounded-xl p-2" : "h-48 w-full p-4"}`}>
+    <div
+      className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-white to-amber-50 ${compact ? "h-32 w-32 shrink-0 rounded-xl p-2" : "h-48 w-full p-4"}`}
+    >
       {service.imageMimeType ? (
         <Image
           src={`/api/services/${service.id}/image`}
@@ -33,9 +41,24 @@ function ServiceImage({ service, compact = false }: { service: PublicService; co
         />
       ) : (
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white/90 text-[#176B7A] shadow-sm">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-9 w-9" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3.75h7.5l4 4v12.5H6.75a1.5 1.5 0 0 1-1.5-1.5v-13.5a1.5 1.5 0 0 1 1.5-1.5Z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M14.25 3.75v4h4M8.5 12h7M8.5 15.5h7" />
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="h-9 w-9"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M6.75 3.75h7.5l4 4v12.5H6.75a1.5 1.5 0 0 1-1.5-1.5v-13.5a1.5 1.5 0 0 1 1.5-1.5Z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M14.25 3.75v4h4M8.5 12h7M8.5 15.5h7"
+            />
           </svg>
         </div>
       )}
@@ -50,49 +73,83 @@ function Price({ service }: { service: PublicService }) {
         {service.requiresQuote ? "Precio" : "Precio desde"}
       </p>
       <p className="mt-1 font-extrabold text-[#123D46]">
-        {service.requiresQuote ? "Sujeto a cotización" : currency.format(Number(service.price ?? 0))}
+        {service.requiresQuote
+          ? "Sujeto a cotización"
+          : currency.format(Number(service.price ?? 0))}
       </p>
     </div>
   );
 }
 
-export default function PublicServicesCatalog({ services }: { services: PublicService[] }) {
+export default function PublicServicesCatalog({
+  services,
+}: {
+  services: PublicService[];
+}) {
   const [carouselIndex, setCarouselIndex] = useState(0);
   const featuredCount = Math.min(4, services.length);
   const maxIndex = Math.max(0, services.length - featuredCount);
   const featured = services.slice(carouselIndex, carouselIndex + featuredCount);
-
 
   return (
     <div className="space-y-14 sm:space-y-16">
       <section aria-labelledby="featured-services-title">
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">Lo más solicitado</p>
-            <h2 id="featured-services-title" className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">
+              Lo más solicitado
+            </p>
+            <h2
+              id="featured-services-title"
+              className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"
+            >
               Servicios destacados
             </h2>
-            <p className="mt-1 text-sm text-slate-500">Descubre algunas de las opciones de nuestro catálogo.</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Descubre algunas de las opciones de nuestro catálogo.
+            </p>
           </div>
           {services.length > featuredCount && (
             <div className="hidden shrink-0 gap-2 sm:flex">
               <button
                 type="button"
                 aria-label="Ver servicios anteriores"
-                onClick={() => setCarouselIndex((index) => Math.max(0, index - 1))}
+                onClick={() =>
+                  setCarouselIndex((index) => Math.max(0, index - 1))
+                }
                 disabled={carouselIndex === 0}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#176B7A] hover:text-[#176B7A] disabled:cursor-not-allowed disabled:opacity-35"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d="m15 18-6-6 6-6" />
+                </svg>
               </button>
               <button
                 type="button"
                 aria-label="Ver siguientes servicios"
-                onClick={() => setCarouselIndex((index) => Math.min(maxIndex, index + 1))}
+                onClick={() =>
+                  setCarouselIndex((index) => Math.min(maxIndex, index + 1))
+                }
                 disabled={carouselIndex === maxIndex}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#176B7A] hover:text-[#176B7A] disabled:cursor-not-allowed disabled:opacity-35"
               >
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className="h-5 w-5"
+                  aria-hidden="true"
+                >
+                  <path d="m9 18 6-6-6-6" />
+                </svg>
               </button>
             </div>
           )}
@@ -100,18 +157,37 @@ export default function PublicServicesCatalog({ services }: { services: PublicSe
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((service) => (
-            <article key={service.id} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+            <article
+              key={service.id}
+              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
+            >
               <ServiceImage service={service} />
               <div className="flex flex-1 flex-col p-4">
-                <p className="w-fit rounded-full bg-[#E8F4F3] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#176B7A]">{service.category}</p>
-                <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">{service.name}</h3>
+                <p className="w-fit rounded-full bg-[#E8F4F3] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#176B7A]">
+                  {service.category}
+                </p>
+                <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">
+                  {service.name}
+                </h3>
                 <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">
-                  {service.description || "Consulta los detalles de este servicio en la papelería."}
+                  {service.description ||
+                    "Consulta los detalles de este servicio en la papelería."}
                 </p>
                 <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
                   <Price service={service} />
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-[#123D46]" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+                  <span
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-[#123D46]"
+                    aria-hidden="true"
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      className="h-4 w-4"
+                    >
+                      <path d="M5 12h14m-6-6 6 6-6 6" />
+                    </svg>
                   </span>
                 </div>
               </div>
@@ -134,8 +210,26 @@ export default function PublicServicesCatalog({ services }: { services: PublicSe
         )}
         {services.length > featuredCount && (
           <div className="mt-4 flex justify-center gap-3 sm:hidden">
-            <button type="button" onClick={() => setCarouselIndex((index) => Math.max(0, index - 1))} disabled={carouselIndex === 0} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40">Anterior</button>
-            <button type="button" onClick={() => setCarouselIndex((index) => Math.min(maxIndex, index + 1))} disabled={carouselIndex === maxIndex} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40">Siguiente</button>
+            <button
+              type="button"
+              onClick={() =>
+                setCarouselIndex((index) => Math.max(0, index - 1))
+              }
+              disabled={carouselIndex === 0}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40"
+            >
+              Anterior
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                setCarouselIndex((index) => Math.min(maxIndex, index + 1))
+              }
+              disabled={carouselIndex === maxIndex}
+              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40"
+            >
+              Siguiente
+            </button>
           </div>
         )}
       </section>
@@ -143,28 +237,44 @@ export default function PublicServicesCatalog({ services }: { services: PublicSe
       <section aria-labelledby="all-services-title">
         <div className="mb-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">Explora el catálogo completo</p>
-            <h2 id="all-services-title" className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Todos nuestros servicios</h2>
-            <p className="mt-1 text-sm text-slate-500">Encuentra la opción ideal para tu proyecto.</p>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">
+              Explora el catálogo completo
+            </p>
+            <h2
+              id="all-services-title"
+              className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"
+            >
+              Todos nuestros servicios
+            </h2>
           </div>
-
         </div>
-
-        <p className="mb-4 text-xs text-slate-500">
-          {search.trim() ? `${filteredServices.length} de ${services.length} servicios` : `${services.length} ${services.length === 1 ? "servicio publicado" : "servicios publicados"}`}
-        </p>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {services.map((service) => (
-            <article key={service.id} className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#176B7A]/30 hover:shadow-md sm:p-5">
+            <article
+              key={service.id}
+              className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#176B7A]/30 hover:shadow-md sm:p-5"
+            >
               <ServiceImage service={service} compact />
               <div className="flex min-w-0 flex-1 flex-col items-start">
-                <p className="rounded-full bg-[#E8F4F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#176B7A]">{service.category}</p>
-                <h3 className="mt-2 text-sm font-bold leading-snug text-slate-900">{service.name}</h3>
-                <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{service.description || "Consulta los detalles de este servicio en la papelería."}</p>
+                <p className="rounded-full bg-[#E8F4F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#176B7A]">
+                  {service.category}
+                </p>
+                <h3 className="mt-2 text-sm font-bold leading-snug text-slate-900">
+                  {service.name}
+                </h3>
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                  {service.description ||
+                    "Consulta los detalles de este servicio en la papelería."}
+                </p>
                 <div className="mt-auto pt-3">
                   <Price service={service} />
-                  {service.estimatedDays && <p className="mt-1 text-xs text-slate-500">Tiempo estimado: {service.estimatedDays} {service.estimatedDays === 1 ? "día" : "días"}</p>}
+                  {service.estimatedDays && (
+                    <p className="mt-1 text-xs text-slate-500">
+                      Tiempo estimado: {service.estimatedDays}{" "}
+                      {service.estimatedDays === 1 ? "día" : "días"}
+                    </p>
+                  )}
                 </div>
               </div>
             </article>
