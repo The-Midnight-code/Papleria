@@ -13,7 +13,9 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
   const [cart, setCart] = useState<CartLine[]>([]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [amountReceived, setAmountReceived] = useState("");
-  const [notes, setNotes] = useState("");\n  const [manualDiscountType, setManualDiscountType] = useState("none");\n  const [manualDiscountValue, setManualDiscountValue] = useState("");
+  const [notes, setNotes] = useState("");
+  const [manualDiscountType, setManualDiscountType] = useState("none");
+  const [manualDiscountValue, setManualDiscountValue] = useState("");
   const [error, setError] = useState("");
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [pending, startTransition] = useTransition();
@@ -22,7 +24,12 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
     return products.filter(p => (!q || [p.name, p.sku, p.category].some(v => v.toLocaleLowerCase("es-MX").includes(q)))).slice(0, 30);
   }, [products, query]);
   const lines = cart.map(line => ({ ...line, product: products.find(p => p.id === line.productId)! })).filter(line => line.product);
-  const total = lines.reduce((sum, line) => sum + Math.round(Number(line.product.salePrice) * 100) * line.quantity / 100, 0);
+  const subtotal = lines.reduce((sum, line) => sum + Math.round(Number(line.product.salePrice) * 100) * line.quantity / 100, 0);
+  const promoTotal = lines.reduce((sum, line) => sum + (Number(line.product.salePrice) - Number(line.product.promoPrice ?? line.product.salePrice)) * line.quantity, 0);
+  const afterPromos = Math.max(0, subtotal - promoTotal);
+  const manualValue = Math.max(0, Number(manualDiscountValue || 0));
+  const manualDiscount = isAdmin && manualDiscountType === "percent" ? afterPromos * Math.min(100, manualValue) / 100 : isAdmin && manualDiscountType === "fixed" ? Math.min(afterPromos, manualValue) : 0;
+  const total = Math.max(0, afterPromos - manualDiscount);
   const totalCents = Math.round(total * 100);
   const received = Number(amountReceived || 0);
   const change = paymentMethod === "cash" ? Math.max(0, Math.round(received * 100) - totalCents) / 100 : 0;
@@ -51,7 +58,9 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
     formData.set("items", JSON.stringify(lines.map(line => ({ productId: line.productId, quantity: line.quantity }))));
     formData.set("paymentMethod", paymentMethod);
     formData.set("amountReceived", paymentMethod === "cash" ? amountReceived : (totalCents / 100).toFixed(2));
-    formData.set("notes", notes);\n    formData.set("manualDiscountType", isAdmin ? manualDiscountType : "none");\n    formData.set("manualDiscountValue", isAdmin ? manualDiscountValue || "0" : "0");
+    formData.set("notes", notes);
+    formData.set("manualDiscountType", isAdmin ? manualDiscountType : "none");
+    formData.set("manualDiscountValue", isAdmin ? manualDiscountValue || "0" : "0");
     startTransition(async () => {
       const result = await registerSale(formData);
       if (result.error) { setError(result.error); return; }
