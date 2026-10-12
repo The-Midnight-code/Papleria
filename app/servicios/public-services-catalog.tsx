@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 
 type PublicService = {
   id: string;
@@ -58,18 +58,10 @@ function Price({ service }: { service: PublicService }) {
 
 export default function PublicServicesCatalog({ services }: { services: PublicService[] }) {
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const [search, setSearch] = useState("");
   const featuredCount = Math.min(4, services.length);
   const maxIndex = Math.max(0, services.length - featuredCount);
   const featured = services.slice(carouselIndex, carouselIndex + featuredCount);
-  const filteredServices = useMemo(() => {
-    const term = search.trim().toLocaleLowerCase("es-MX");
-    if (!term) return services;
-    return services.filter((service) =>
-      [service.name, service.category, service.description ?? ""]
-        .some((value) => value.toLocaleLowerCase("es-MX").includes(term)),
-    );
-  }, [services, search]);
+
 
   return (
     <div className="space-y-14 sm:space-y-16">
@@ -149,53 +141,35 @@ export default function PublicServicesCatalog({ services }: { services: PublicSe
       </section>
 
       <section aria-labelledby="all-services-title">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="mb-6">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">Explora el catálogo completo</p>
             <h2 id="all-services-title" className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Todos nuestros servicios</h2>
             <p className="mt-1 text-sm text-slate-500">Encuentra la opción ideal para tu proyecto.</p>
           </div>
-          <div className="relative w-full sm:max-w-xs">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></svg>
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Buscar un servicio..."
-              aria-label="Buscar entre todos los servicios"
-              className="min-h-11 w-full rounded-full border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#176B7A] focus:ring-2 focus:ring-[#176B7A]/15"
-            />
-          </div>
+
         </div>
 
         <p className="mb-4 text-xs text-slate-500">
           {search.trim() ? `${filteredServices.length} de ${services.length} servicios` : `${services.length} ${services.length === 1 ? "servicio publicado" : "servicios publicados"}`}
         </p>
 
-        {filteredServices.length === 0 ? (
-          <div className="rounded-2xl border border-slate-200 bg-white px-6 py-12 text-center">
-            <h3 className="font-bold text-slate-900">No encontramos servicios</h3>
-            <p className="mt-2 text-sm text-slate-500">Prueba con otro nombre o categoría.</p>
-            <button type="button" onClick={() => setSearch("")} className="mt-4 rounded-lg bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-200">Limpiar búsqueda</button>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filteredServices.map((service) => (
-              <article key={service.id} className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#176B7A]/30 hover:shadow-md sm:p-5">
-                <ServiceImage service={service} compact />
-                <div className="flex min-w-0 flex-1 flex-col items-start">
-                  <p className="rounded-full bg-[#E8F4F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#176B7A]">{service.category}</p>
-                  <h3 className="mt-2 text-sm font-bold leading-snug text-slate-900">{service.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{service.description || "Consulta los detalles de este servicio en la papelería."}</p>
-                  <div className="mt-auto pt-3">
-                    <Price service={service} />
-                    {service.estimatedDays && <p className="mt-1 text-xs text-slate-500">Tiempo estimado: {service.estimatedDays} {service.estimatedDays === 1 ? "día" : "días"}</p>}
-                  </div>
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {services.map((service) => (
+            <article key={service.id} className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-[#176B7A]/30 hover:shadow-md sm:p-5">
+              <ServiceImage service={service} compact />
+              <div className="flex min-w-0 flex-1 flex-col items-start">
+                <p className="rounded-full bg-[#E8F4F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#176B7A]">{service.category}</p>
+                <h3 className="mt-2 text-sm font-bold leading-snug text-slate-900">{service.name}</h3>
+                <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">{service.description || "Consulta los detalles de este servicio en la papelería."}</p>
+                <div className="mt-auto pt-3">
+                  <Price service={service} />
+                  {service.estimatedDays && <p className="mt-1 text-xs text-slate-500">Tiempo estimado: {service.estimatedDays} {service.estimatedDays === 1 ? "día" : "días"}</p>}
                 </div>
-              </article>
-            ))}
-          </div>
-        )}
+              </div>
+            </article>
+          ))}
+        </div>
       </section>
     </div>
   );
