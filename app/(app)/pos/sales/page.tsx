@@ -3,7 +3,7 @@ import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/db";
 import { saleItems, sales, users } from "@/db/schema";
 import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
-import { SalesHistory } from "./sales-history";
+import { SalesHistory } from "../sales-history";
 
 export default async function SalesPage() {
   const user = await requireEmployeeOrAdmin();
