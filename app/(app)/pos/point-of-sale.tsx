@@ -99,12 +99,63 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
     <aside className="space-y-4 rounded-2xl border border-white/70 bg-white p-4 shadow-md sm:p-5 lg:sticky lg:top-4">
       <h2 className="text-lg font-bold text-gray-900">Resumen de venta</h2>
       <div className="flex items-center justify-between text-sm text-gray-600"><span>Subtotal</span><span>{money(subtotal)}</span></div>
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3"><div className="flex items-center justify-between gap-3"><span className="text-sm font-bold text-amber-900">Descuento total</span><span className="text-xl font-black text-amber-900">−{money(promoTotal + manualDiscount)}</span></div>{promoTotal > 0 && <div className="mt-1 flex items-center justify-between text-xs text-emerald-800"><span>Ofertas aplicadas</span><span>−{money(promoTotal)}</span></div>}{manualDiscount > 0 && <div className="mt-1 flex items-center justify-between text-xs text-amber-800"><span>Descuento manual</span><span>−{money(manualDiscount)}</span></div>}</div>
-      {isAdmin && <div className="space-y-2 rounded-xl border border-[#FFD400]/60 bg-amber-50 p-3"><p className="text-sm font-bold text-gray-800">Descuento manual</p><select value={manualDiscountType} onChange={e=>setManualDiscountType(e.target.value)} className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm text-gray-900"><option value="none">Sin descuento</option><option value="percent">Porcentaje (%)</option><option value="fixed">Importe (MXN)</option></select>{manualDiscountType!=="none" && <input value={manualDiscountValue} onChange={e=>setManualDiscountValue(e.target.value)} type="number" min="0.01" max={manualDiscountType==="percent"?100:afterPromos} step="0.01" placeholder="Valor del descuento" className="min-h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-900"/>}</div>}
-      <div className="rounded-xl bg-[#176B7A] p-4 text-white shadow-sm"><p className="text-xs font-bold uppercase tracking-wider text-white/80">Total a cobrar</p><p aria-live="polite" className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{money(total)}</p><p className="mt-1 text-xs text-white/80">MXN · Importe final</p></div>
-      <label className="block space-y-1.5"><span className="text-sm font-semibold text-gray-700">Método de pago *</span><select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900"><option value="cash">Efectivo</option><option value="card">Tarjeta (registro manual)</option><option value="transfer">Transferencia (registro manual)</option></select></label>
-      {paymentMethod === "cash" && <><label className="block space-y-1.5"><span className="text-sm font-semibold text-gray-700">Efectivo recibido (MXN) *</span><input value={amountReceived} onChange={e => setAmountReceived(e.target.value)} type="number" min={total} step="0.01" placeholder={total.toFixed(2)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3.5 text-sm text-gray-900" /></label><div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 px-3 py-4"><p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Cambio a devolver</p><p aria-live="polite" className="mt-1 text-2xl font-black tabular-nums text-emerald-900">{money(change)}</p></div></>}
-      {paymentMethod !== "cash" && <p className="rounded-xl bg-sky-50 px-3 py-3 text-xs text-sky-800">El cobro con {paymentMethod === "card" ? "tarjeta" : "transferencia"} se registra manualmente; no se conecta a una terminal.</p>}
+      <div className="rounded-xl border border-amber-200 bg-amber-50 p-3">
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm font-bold text-amber-900">Descuento total</span>
+          <span className="text-xl font-black text-amber-900">−{money(promoTotal + manualDiscount)}</span>
+        </div>
+        {promoTotal > 0 && (
+          <div className="mt-1 flex items-center justify-between text-xs text-emerald-800">
+            <span>Ofertas aplicadas</span><span>−{money(promoTotal)}</span>
+          </div>
+        )}
+        {manualDiscount > 0 && (
+          <div className="mt-1 flex items-center justify-between text-xs text-amber-800">
+            <span>Descuento manual</span><span>−{money(manualDiscount)}</span>
+          </div>
+        )}
+      </div>
+      {isAdmin && (
+        <div className="space-y-2 rounded-xl border border-[#FFD400]/60 bg-amber-50 p-3">
+          <p className="text-sm font-bold text-gray-800">Descuento manual</p>
+          <select value={manualDiscountType} onChange={e => setManualDiscountType(e.target.value)} className="min-h-10 w-full rounded-lg border border-gray-200 bg-white px-2 text-sm text-gray-900">
+            <option value="none">Sin descuento</option>
+            <option value="percent">Porcentaje (%)</option>
+            <option value="fixed">Importe (MXN)</option>
+          </select>
+          {manualDiscountType !== "none" && (
+            <input value={manualDiscountValue} onChange={e => setManualDiscountValue(e.target.value)} type="number" min="0.01" max={manualDiscountType === "percent" ? 100 : afterPromos} step="0.01" placeholder="Valor del descuento" className="min-h-10 w-full rounded-lg border border-gray-200 px-3 text-sm text-gray-900" />
+          )}
+        </div>
+      )}
+      <div className="rounded-xl bg-[#176B7A] p-4 text-white shadow-sm">
+        <p className="text-xs font-bold uppercase tracking-wider text-white/80">Total a cobrar</p>
+        <p aria-live="polite" className="mt-1 text-3xl font-black tracking-tight sm:text-4xl">{money(total)}</p>
+        <p className="mt-1 text-xs text-white/80">MXN · Importe final</p>
+      </div>
+      <label className="block space-y-1.5">
+        <span className="text-sm font-semibold text-gray-700">Método de pago *</span>
+        <select value={paymentMethod} onChange={e => setPaymentMethod(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900">
+          <option value="cash">Efectivo</option><option value="card">Tarjeta (registro manual)</option><option value="transfer">Transferencia (registro manual)</option>
+        </select>
+      </label>
+      {paymentMethod === "cash" && (
+        <>
+          <label className="block space-y-1.5">
+            <span className="text-sm font-semibold text-gray-700">Efectivo recibido (MXN) *</span>
+            <input value={amountReceived} onChange={e => setAmountReceived(e.target.value)} type="number" min={total} step="0.01" placeholder={total.toFixed(2)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3.5 text-sm text-gray-900" />
+          </label>
+          <div className="rounded-xl border-2 border-emerald-200 bg-emerald-50 px-3 py-4">
+            <p className="text-xs font-bold uppercase tracking-wide text-emerald-800">Cambio a devolver</p>
+            <p aria-live="polite" className="mt-1 text-2xl font-black tabular-nums text-emerald-900">{money(change)}</p>
+          </div>
+        </>
+      )}
+      {paymentMethod !== "cash" && (
+        <p className="rounded-xl bg-sky-50 px-3 py-3 text-xs text-sky-800">
+          El cobro con {paymentMethod === "card" ? "tarjeta" : "transferencia"} se registra manualmente; no se conecta a una terminal.
+        </p>
+      )}
       <label className="block space-y-1.5"><span className="text-sm font-semibold text-gray-700">Notas (opcional)</span><textarea value={notes} onChange={e => setNotes(e.target.value)} maxLength={500} rows={2} placeholder="Observaciones de la venta..." className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm text-gray-900" /></label>
       {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
       <button type="button" onClick={submit} disabled={pending || !lines.length} className="min-h-12 w-full rounded-xl bg-[#FFD400] px-5 py-3 text-sm font-black text-gray-900 shadow-sm transition hover:bg-[#f2ca00] disabled:cursor-not-allowed disabled:opacity-50">{pending ? "Registrando venta..." : "Confirmar venta · " + money(total)}</button>
