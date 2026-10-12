@@ -10,7 +10,7 @@ export default async function PointOfSalePage() {
   const productList = await db.select({
     id: products.id, name: products.name, sku: products.sku, category: products.category,
     salePrice: products.salePrice, stockQuantity: products.stockQuantity, active: products.active,
-  }).from(products).where(asc(products.name));
+  }).from(products).orderBy(asc(products.name));
   return <main className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
     <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div><Link href="/dashboard" className="text-sm text-white/75 transition hover:text-white">← Volver al inicio</Link>
