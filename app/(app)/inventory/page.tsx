@@ -8,7 +8,8 @@ import { ProductCatalog } from "./product-catalog";
 import { InventoryReport } from "./inventory-report";
 
 export default async function InventoryPage() {
-  await requireEmployeeOrAdmin();
+  const user = await requireEmployeeOrAdmin();
+  const isAdmin = user.role === "ADMIN";
 
   const productList = await db.select({
     id: products.id,
@@ -48,10 +49,10 @@ export default async function InventoryPage() {
           <h1 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Inventario de productos</h1>
           <p className="mt-1 text-sm text-white/75">Controla los productos físicos, sus precios y las existencias de la papelería.</p>
         </div>
-        <div className="flex flex-wrap gap-2"><Link href="/inventory/purchases" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-white/20">Compras a proveedores</Link><Link href="/inventory/replenishment" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-white/20">Compras y reabastecimiento</Link><Link href="/inventory/monthly-report" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-white/20">Reporte mensual</Link><Link href="/inventory/movements" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#FFD400] px-5 py-2.5 text-sm font-bold text-gray-900 shadow-sm transition hover:bg-[#f2ca00]">Movimientos de inventario →</Link></div>
+        <div className="flex flex-wrap gap-2">{isAdmin && <Link href="/inventory/purchases" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-white/20">Compras a proveedores</Link>} {isAdmin && <Link href="/inventory/replenishment" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-white/20">Compras y reabastecimiento</Link>} {isAdmin && <Link href="/inventory/monthly-report" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/30 bg-white/10 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-white/20">Reporte mensual</Link>} <Link href="/inventory/movements" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#FFD400] px-5 py-2.5 text-sm font-bold text-gray-900 shadow-sm transition hover:bg-[#f2ca00]">Movimientos de inventario →</Link></div>
       </header>
-      <InventoryReport report={{ ...report, productCount: activeProducts.length, potentialProfit: report.saleValue - report.costValue }} />
-      <ProductCatalog products={productList} />
+      {isAdmin && <InventoryReport report={{ ...report, productCount: activeProducts.length, potentialProfit: report.saleValue - report.costValue }} />}
+      <ProductCatalog products={isAdmin ? productList : productList.map((product) => ({ ...product, costPrice: "0.00", salePrice: "0.00" }))} isAdmin={isAdmin} />
     </main>
   );
 }
