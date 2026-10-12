@@ -15,11 +15,17 @@ const reasonLabels: Record<string,string> = { purchase:"Compra", return:"Devoluc
 
 export function MovementManager({ products, history }: { products: Product[]; history: Movement[] }) {
   const [type,setType] = useState("entry");
-  const [productId,setProductId] = useState(products.find(p=>p.active)?.id ?? "");
+  const [productId,setProductId] = useState("");
+  const [productSearch,setProductSearch] = useState("");
+  const [showProductResults,setShowProductResults] = useState(false);
   const [error,setError] = useState("");
   const [pending,startTransition] = useTransition();
   const [query,setQuery] = useState("");
   const selected = products.find(p=>p.id===productId);
+  const productMatches = useMemo(() => {
+    const q = productSearch.trim().toLocaleLowerCase("es-MX");
+    return products.filter(p => p.active && (!q || p.name.toLocaleLowerCase("es-MX").includes(q) || p.sku.toLocaleLowerCase("es-MX").includes(q))).slice(0, 8);
+  }, [products, productSearch]);
   const visibleHistory = useMemo(()=>history.filter(m=>!query || [m.productName,m.sku,m.userName ?? "",typeLabels[m.type] ?? "",reasonLabels[m.reason] ?? ""].some(v=>v.toLocaleLowerCase("es-MX").includes(query.toLocaleLowerCase("es-MX")))),[history,query]);
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
@@ -34,13 +40,23 @@ export function MovementManager({ products, history }: { products: Product[]; hi
       <form onSubmit={submit} className="mt-5 space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Tipo de movimiento *</span><select name="type" value={type} onChange={e=>setType(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900"><option value="entry">Entrada</option><option value="exit">Salida</option><option value="adjustment">Ajuste de existencias</option></select></label>
-          <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Producto *</span><select name="productId" value={productId} onChange={e=>setProductId(e.target.value)} required className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900"><option value="">Selecciona un producto</option>{products.filter(p=>p.active).map(p=><option key={p.id} value={p.id}>{p.name} · {p.sku} · stock: {p.stockQuantity}</option>)}</select></label>
+          <div className="space-y-1.5">
+            <label htmlFor="movement-product-search" className="block text-sm font-semibold text-gray-700">Producto *</label>
+            <input id="movement-product-search" type="search" value={productSearch} autoComplete="off" onFocus={()=>setShowProductResults(true)} onChange={e=>{setProductSearch(e.target.value);setProductId("");setShowProductResults(true);}} placeholder="Buscar por nombre o SKU..." className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" />
+            {showProductResults && productSearch.trim() && !selected && <div className="mt-1 max-h-60 overflow-y-auto rounded-xl border border-gray-200 bg-white shadow-lg">
+              {productMatches.length ? productMatches.map(p=><button key={p.id} type="button" onClick={()=>{setProductId(p.id);setProductSearch(p.name+" · "+p.sku);setShowProductResults(false);}} className="flex w-full items-center justify-between gap-3 border-b border-gray-100 px-3.5 py-3 text-left last:border-b-0 hover:bg-[#176B7A]/5">
+                <span><span className="block text-sm font-semibold text-gray-900">{p.name}</span><span className="block text-xs text-gray-500">SKU: {p.sku}</span></span><span className="shrink-0 text-xs font-bold text-gray-600">Stock: {p.stockQuantity}</span>
+              </button>) : <p className="px-3.5 py-3 text-sm text-gray-500">No encontramos productos activos.</p>}
+            </div>}
+            {selected && <p className="text-xs font-medium text-[#176B7A]">Seleccionado: {selected.name} · Stock actual: {selected.stockQuantity}</p>}
+            <input type="hidden" name="productId" value={productId} />
+          </div>
           <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Motivo *</span><select name="reason" key={type} required className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900">{reasons[type].map(r=><option key={r.value} value={r.value}>{r.label}</option>)}</select></label>
           <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">{type==="adjustment"?"Existencia real después del conteo *":"Cantidad *"}</span><input name="quantity" type="number" min="1" max="2147483647" step="1" required className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900" /><span className="block text-xs text-gray-500">{type==="adjustment"?"Stock actual: "+(selected?.stockQuantity ?? "—")+". Escribe la cantidad total correcta.":"Usa una cantidad entera mayor que cero."}</span></label>
           <label className="space-y-1.5 sm:col-span-2"><span className="text-sm font-semibold text-gray-700">Notas (opcional)</span><textarea name="notes" maxLength={1000} rows={2} placeholder="Referencia de compra, detalle de daño, observaciones..." className="w-full rounded-xl border border-gray-200 bg-white px-3.5 py-3 text-sm text-gray-900" /></label>
         </div>
         {error&&<p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</p>}
-        <div className="flex justify-end"><button disabled={pending||!products.some(p=>p.active)} className="min-h-11 rounded-xl bg-[#176B7A] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#125663] disabled:opacity-50">{pending?"Registrando...":"Registrar movimiento"}</button></div>
+        <div className="flex justify-end"><button disabled={pending||!selected} className="min-h-11 rounded-xl bg-[#176B7A] px-5 py-2.5 text-sm font-bold text-white transition hover:bg-[#125663] disabled:opacity-50">{pending?"Registrando...":"Registrar movimiento"}</button></div>
       </form>
     </section>
     <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-4 shadow-md sm:p-6">
