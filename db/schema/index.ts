@@ -12,3 +12,4 @@ export * from "./service_orders";
 export * from "./service_order_payments";
 export * from "./products";
 export * from "./movements";
+export * from "./purchases";
