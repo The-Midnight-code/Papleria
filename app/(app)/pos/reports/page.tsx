@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/db";
 import { saleItems, sales, users } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
@@ -10,24 +10,15 @@ function localDate() {
   const get=(type:string)=>parts.find(p=>p.type===type)?.value??"";
   return get("year")+"-"+get("month")+"-"+get("day");
 }
-function localMidnight(date:string) {
-  const [year,month,day]=date.split("-").map(Number);
-  // America/Tijuana currently observes UTC-7 in the report's target period.
-  return new Date(Date.UTC(year,month-1,day,7,0,0));
-}
 export default async function SalesProfitReportPage() {
   await requireAdmin();
   const today=localDate();
   const monthStart=today.slice(0,7)+"-01";
-  const from=localMidnight(monthStart);
-  const [year,month,day]=today.split("-").map(Number);
-  const nextDate=new Date(Date.UTC(year,month-1,day+1));
-  const until=localMidnight(nextDate.toISOString().slice(0,10));
   const rows=await db.select({
     id:sales.id,folio:sales.folio,paymentMethod:sales.paymentMethod,subtotal:sales.subtotal,
     discountTotal:sales.discountTotal,total:sales.total,status:sales.status,soldAt:sales.soldAt,
     cancellationReason:sales.cancellationReason,userName:users.name,
-  }).from(sales).leftJoin(users,eq(sales.soldBy,users.id)).where(and(gte(sales.soldAt,from),lt(sales.soldAt,until))).orderBy(desc(sales.soldAt));
+  }).from(sales).leftJoin(users,eq(sales.soldBy,users.id)).orderBy(desc(sales.soldAt)).limit(5000);
   const ids=rows.map(r=>r.id);
   const items=ids.length?await db.select({saleId:saleItems.saleId,quantity:saleItems.quantity,lineTotal:saleItems.lineTotal,lineCost:saleItems.lineCost}).from(saleItems).where(inArray(saleItems.saleId,ids)):[];
   const itemTotals=new Map<string,{cost:number;profit:number;units:number}>();
