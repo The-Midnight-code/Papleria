@@ -224,40 +224,37 @@ export default function PublicServicesCatalog({
       <section aria-labelledby="all-services-title">
         <div className="mb-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#FFD400]">
               Explora el catálogo completo
             </p>
             <h2
               id="all-services-title"
-              className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"
+              className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl"
             >
               Todos nuestros servicios
             </h2>
           </div>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {services.map((service) => (
             <article
               key={service.id}
-              className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5"
+              className="flex h-full flex-col overflow-hidden rounded-xl border border-white/70 bg-white shadow-md"
             >
-              <ServiceImage service={service} compact />
-              <div className="flex min-w-0 flex-1 flex-col items-start">
-                <p className="rounded-full bg-[#E8F4F3] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#176B7A]">
-                  {service.category}
-                </p>
-                <h3 className="mt-2 text-sm font-bold leading-snug text-slate-900">
+              <ServiceImage service={service} />
+              <div className="flex flex-1 flex-col p-4">
+                <h3 className="text-base font-extrabold leading-snug text-slate-900 sm:text-lg">
                   {service.name}
                 </h3>
-                <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+                <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">
                   {service.description ||
                     "Consulta los detalles de este servicio en la papelería."}
                 </p>
-                <div className="mt-auto pt-3">
+                <div className="mt-auto border-t border-slate-100 pt-4">
                   <Price service={service} />
                   {service.estimatedDays && (
-                    <p className="mt-1 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-slate-500">
                       Tiempo estimado: {service.estimatedDays}{" "}
                       {service.estimatedDays === 1 ? "día" : "días"}
                     </p>
