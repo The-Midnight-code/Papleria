@@ -9,11 +9,12 @@ type Purchase = { id: string; supplierName: string; reference: string | null; no
 type Line = { productId: string; quantity: number; unitCost: string };
 const money = (value: number) => value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 const dateLabel = (value: string) => new Date(value).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
+const localDateValue = () => { const now = new Date(); return now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, "0") + "-" + String(now.getDate()).padStart(2, "0"); };
 
 export function PurchaseManager({ products, history }: { products: Product[]; history: Purchase[] }) {
   const [supplierName, setSupplierName] = useState("");
   const [reference, setReference] = useState("");
-  const [purchasedAt, setPurchasedAt] = useState(new Date().toLocaleDateString("en-CA"));
+  const [purchasedAt, setPurchasedAt] = useState(localDateValue());
   const [notes, setNotes] = useState("");
   const [lines, setLines] = useState<Line[]>([{ productId: "", quantity: 1, unitCost: "0.00" }]);
   const [error, setError] = useState("");
