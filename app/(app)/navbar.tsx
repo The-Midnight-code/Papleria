@@ -16,6 +16,7 @@ const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/lists", label: "Listas" },
   { href: "/inventory", label: "Inventario" },
+  { href: "/pos", label: "Punto de venta" },
 ];
 
 export default function Navbar({ user }: NavbarProps) {
