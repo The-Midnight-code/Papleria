@@ -57,6 +57,13 @@
       "when": 1791837600000,
       "tag": "0007_supplier_purchases",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1791838200000,
+      "tag": "0008_point_of_sale",
+      "breakpoints": true
     }
   ]
 }
