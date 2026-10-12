@@ -123,7 +123,10 @@ export async function updateProduct(productId: string, formData: FormData) {
     });
 
     revalidatePath("/inventory");
-    return { success: true, product: result };
+    const safeProduct = user.role === "ADMIN"
+      ? result
+      : { id: result.id, name: result.name, sku: result.sku };
+    return { success: true, product: safeProduct };
   } catch (error) {
     return { error: getActionError(error, "No fue posible actualizar el producto.") };
   }
