@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq, lte, gte, isNull, or } from "drizzle-orm";
+import { and, eq, lte, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
 import { activityLogs, inventoryMovements, products, promotions, saleItems, sales } from "@/db/schema";
