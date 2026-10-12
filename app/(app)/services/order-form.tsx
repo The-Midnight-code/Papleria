@@ -21,6 +21,7 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [agreedPrice, setAgreedPrice] = useState("");
   const [serviceSearch, setServiceSearch] = useState("");
+  const [isSearchingService, setIsSearchingService] = useState(false);
 
   const selectedService = services.find(
     (service) => service.id === selectedServiceId,
@@ -75,14 +76,15 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
               id="serviceId"
               type="search"
               value={serviceSearch}
-              onChange={(event) => setServiceSearch(event.target.value)}
+              onFocus={() => setIsSearchingService(true)}
+              onChange={(event) => { setServiceSearch(event.target.value); setIsSearchingService(true); }}
               placeholder="Buscar por nombre o categoría..."
               autoComplete="off"
               aria-label="Buscar servicio por nombre o categoría"
               aria-controls="service-options"
               className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
             />
-            {selectedService && (
+            {selectedService && !isSearchingService && (
               <div className="flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3">
                 {selectedService.imageUrl ? (
                   <img src={selectedService.imageUrl} alt="" className="h-16 w-16 rounded-lg border border-amber-200 bg-white object-cover" />
@@ -94,10 +96,10 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
                   <p className="truncate font-bold text-gray-900">{selectedService.name}</p>
                   <p className="text-sm text-gray-600">{selectedService.category}</p>
                 </div>
-                <button type="button" onClick={() => { handleServiceChange(""); setServiceSearch(""); }} className="rounded-lg px-2 py-1 text-sm font-semibold text-gray-600 transition hover:bg-white hover:text-gray-900">Cambiar</button>
+                <button type="button" onClick={() => { handleServiceChange(""); setServiceSearch(""); setIsSearchingService(true); }} className="rounded-lg px-2 py-1 text-sm font-semibold text-gray-600 transition hover:bg-white hover:text-gray-900">Cambiar</button>
               </div>
             )}
-            <div id="service-options" className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-2" role="group" aria-label="Resultados de servicios">
+            {isSearchingService && <div id="service-options" className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-2" role="group" aria-label="Resultados de servicios">
               {filteredServices.length === 0 ? (
                 <p className="px-3 py-5 text-center text-sm text-gray-500">No encontramos servicios con esa búsqueda.</p>
               ) : (
@@ -120,7 +122,8 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
                   );
                 })
               )}
-            </div>
+            </div>}
+            {selectedService && isSearchingService && <button type="button" onClick={() => { setIsSearchingService(false); setServiceSearch(""); }} className="text-sm font-semibold text-gray-600 underline decoration-gray-300 underline-offset-4 hover:text-gray-900">Conservar servicio seleccionado</button>}
           </div>
 
           {selectedService?.requiresQuote && (
