@@ -78,9 +78,9 @@ export default async function ServiceOrdersPage() {
 
   return (
     <main className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold">Órdenes de servicio</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Órdenes de servicio</h1>
           <p className="text-muted-foreground">
             Administra los trabajos, pagos y fechas de entrega.
           </p>
@@ -88,15 +88,15 @@ export default async function ServiceOrdersPage() {
 
         <Link
           href="/services/orders/new"
-          className="inline-flex items-center justify-center rounded-lg bg-[#176B7A] px-4 py-2.5 font-semibold text-white shadow-sm transition hover:bg-[#125663] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176B7A]"
+          className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#FFD400] px-5 py-3 text-sm font-bold text-gray-900 shadow-sm transition hover:bg-[#ffe04d] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
         >
           + Nueva orden
         </Link>
       </header>
 
       <section className="grid gap-4 sm:grid-cols-3">
-        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition hover:shadow-xl">
-          <p className="text-sm font-semibold text-[#176B7A]">
+        <article className="rounded-2xl border border-white/60 bg-white/95 p-5 shadow-sm transition hover:shadow-md">
+          <p className="text-sm font-semibold text-gray-500">
             Total de órdenes
           </p>
           <p className="mt-2 text-2xl font-bold text-gray-900">
@@ -128,9 +128,9 @@ export default async function ServiceOrdersPage() {
       </section>
 
       {orders.length === 0 ? (
-        <section className="rounded-xl border border-border bg-card px-5 py-12 text-center">
-          <h2 className="text-lg font-semibold">Todavía no hay órdenes</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+        <section className="rounded-2xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm">
+          <h2 className="text-lg font-bold text-gray-900">Todavía no hay órdenes</h2>
+          <p className="mt-2 text-sm leading-6 text-gray-500">
             Registra el primer trabajo para comenzar a controlar sus avances y
             entregas.
           </p>
@@ -159,15 +159,15 @@ export default async function ServiceOrdersPage() {
               <Link
                 key={order.id}
                 href={`/services/orders/${order.id}`}
-                className="block rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition hover:-translate-y-0.5 hover:shadow-xl sm:p-6"
+                className="block rounded-2xl border border-white/70 bg-white p-5 shadow-md transition duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFD400] sm:p-6"
               >
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div className="min-w-0 space-y-1">
-                    <p className="font-semibold">{order.orderNumber}</p>
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#176B7A]">{order.orderNumber}</p>
                     <h2 className="text-lg font-bold text-gray-900">
                       {order.serviceName}
                     </h2>
-                    <p className="text-sm text-gray-700">
+                    <p className="text-sm text-gray-600">
                       {order.customerName}
                       {order.customerPhone ? ` · ${order.customerPhone}` : ""}
                     </p>
@@ -183,9 +183,9 @@ export default async function ServiceOrdersPage() {
                   </span>
                 </div>
 
-                <div className="mt-4 grid gap-4 border-t border-gray-200 pt-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mt-4 grid gap-4 border-t border-gray-100 pt-4 sm:grid-cols-2 lg:grid-cols-4">
                   <div>
-                    <p className="text-xs font-medium text-gray-600">
+                    <p className="text-xs font-medium text-gray-500">
                       Precio acordado
                     </p>
                     <p className="mt-1 font-semibold text-gray-900">
