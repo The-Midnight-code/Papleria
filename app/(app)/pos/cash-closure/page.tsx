@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/db";
-import { cashClosures, sales, users } from "@/db/schema";
+import { cashClosures, cashRegisterMovements, sales, users } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
 import { CashClosureManager } from "./cash-closure-manager";
 
@@ -14,15 +14,18 @@ function localDate() {
 export default async function CashClosurePage() {
   await requireAdmin();
   const today = localDate();
-  const [todaySales, history] = await Promise.all([
+  const [todaySales, movements, history] = await Promise.all([
     db.select({paymentMethod:sales.paymentMethod,total:sales.total}).from(sales).where(sql` ${sales.status} = 'completed' AND (${sales.soldAt} AT TIME ZONE 'America/Tijuana')::date = ${today}::date `),
-    db.select({id:cashClosures.id,businessDate:cashClosures.businessDate,closedAt:cashClosures.closedAt,salesCount:cashClosures.salesCount,cashTotal:cashClosures.cashTotal,cardTotal:cashClosures.cardTotal,transferTotal:cashClosures.transferTotal,totalSales:cashClosures.totalSales,cashCounted:cashClosures.cashCounted,difference:cashClosures.difference,notes:cashClosures.notes,closedByName:users.name}).from(cashClosures).leftJoin(users,eq(cashClosures.closedBy,users.id)).orderBy(desc(cashClosures.businessDate)).limit(60),
+    db.select({id:cashRegisterMovements.id,type:cashRegisterMovements.type,amount:cashRegisterMovements.amount,reason:cashRegisterMovements.reason,notes:cashRegisterMovements.notes,createdAt:cashRegisterMovements.createdAt,createdByName:users.name}).from(cashRegisterMovements).leftJoin(users,eq(cashRegisterMovements.createdBy,users.id)).where(eq(cashRegisterMovements.businessDate,today)).orderBy(desc(cashRegisterMovements.createdAt)),
+    db.select({id:cashClosures.id,businessDate:cashClosures.businessDate,closedAt:cashClosures.closedAt,salesCount:cashClosures.salesCount,cashTotal:cashClosures.cashTotal,cardTotal:cashClosures.cardTotal,transferTotal:cashClosures.transferTotal,totalSales:cashClosures.totalSales,openingFloat:cashClosures.openingFloat,cashIn:cashClosures.cashIn,cashOut:cashClosures.cashOut,cashExpected:cashClosures.cashExpected,cashCounted:cashClosures.cashCounted,difference:cashClosures.difference,notes:cashClosures.notes,closedByName:users.name}).from(cashClosures).leftJoin(users,eq(cashClosures.closedBy,users.id)).orderBy(desc(cashClosures.businessDate)).limit(60),
   ]);
   const totals = todaySales.reduce((acc,sale)=>{const value=Math.round(Number(sale.total)*100);acc.total+=value;if(sale.paymentMethod==="cash")acc.cash+=value;else if(sale.paymentMethod==="card")acc.card+=value;else if(sale.paymentMethod==="transfer")acc.transfer+=value;return acc;},{cash:0,card:0,transfer:0,total:0});
   const existing=history.find(row=>row.businessDate===today);
-  const serialized=history.map(row=>({...row,businessDate:String(row.businessDate),closedAt:row.closedAt.toISOString(),cashTotal:String(row.cashTotal),cardTotal:String(row.cardTotal),transferTotal:String(row.transferTotal),totalSales:String(row.totalSales),cashCounted:String(row.cashCounted),difference:String(row.difference)}));
+  const movementTotals=movements.reduce((acc,movement)=>{const amount=Math.round(Number(movement.amount)*100);if(movement.type==="opening")acc.opening+=amount;else if(movement.type==="in")acc.cashIn+=amount;else if(movement.type==="out")acc.cashOut+=amount;return acc;},{opening:0,cashIn:0,cashOut:0});
+  const serialized=history.map(row=>({...row,businessDate:String(row.businessDate),closedAt:row.closedAt.toISOString(),cashTotal:String(row.cashTotal),cardTotal:String(row.cardTotal),transferTotal:String(row.transferTotal),totalSales:String(row.totalSales),openingFloat:String(row.openingFloat),cashIn:String(row.cashIn),cashOut:String(row.cashOut),cashExpected:String(row.cashExpected),cashCounted:String(row.cashCounted),difference:String(row.difference)}));
+  const serializedMovements=movements.map(row=>({...row,amount:String(row.amount),createdAt:row.createdAt.toISOString()}));
   return <main className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
-    <header><Link href="/pos" className="text-sm text-white/75 transition hover:text-white">← Volver al punto de venta</Link><h1 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Corte de caja diario</h1><p className="mt-1 text-sm text-white/75">Conciliación de ventas completadas por método de pago y registro del efectivo contado.</p></header>
-    <CashClosureManager businessDate={today} existing={existing ? {businessDate:String(existing.businessDate),cashTotal:String(existing.cashTotal),cashCounted:String(existing.cashCounted),difference:String(existing.difference)} : null} todayTotals={{cash:(totals.cash/100).toFixed(2),card:(totals.card/100).toFixed(2),transfer:(totals.transfer/100).toFixed(2),total:(totals.total/100).toFixed(2),salesCount:todaySales.length}} history={serialized}/>
+    <header><Link href="/pos" className="text-sm text-white/75 transition hover:text-white">← Volver al punto de venta</Link><h1 className="mt-3 text-2xl font-bold tracking-tight text-white sm:text-3xl">Corte de caja diario</h1><p className="mt-1 text-sm text-white/75">Fondo inicial, entradas y retiros de efectivo, conciliación por método de pago y cierre diario.</p></header>
+    <CashClosureManager businessDate={today} existing={existing ? {businessDate:String(existing.businessDate),cashTotal:String(existing.cashTotal),openingFloat:String(existing.openingFloat),cashIn:String(existing.cashIn),cashOut:String(existing.cashOut),cashExpected:String(existing.cashExpected),cashCounted:String(existing.cashCounted),difference:String(existing.difference)} : null} todayTotals={{cash:(totals.cash/100).toFixed(2),card:(totals.card/100).toFixed(2),transfer:(totals.transfer/100).toFixed(2),total:(totals.total/100).toFixed(2),salesCount:todaySales.length}} movementTotals={{opening:(movementTotals.opening/100).toFixed(2),cashIn:(movementTotals.cashIn/100).toFixed(2),cashOut:(movementTotals.cashOut/100).toFixed(2)}} movements={serializedMovements} history={serialized}/>
   </main>;
 }
