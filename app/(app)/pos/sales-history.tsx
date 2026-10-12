@@ -37,10 +37,8 @@ export function SalesHistory({ sales, isAdmin, currentUserId }: { sales: Sale[];
   function exportCsv() {
     const headers = ["Fecha", "Hora", "Folio", "Estado", "Productos", "Unidades", "Método de pago", "Total válido MXN", "Responsable", ...(isAdmin ? ["Costo histórico válido MXN", "Ganancia bruta válida MXN"] : []), "Notas de venta", "Motivo de cancelación"];
     const rows = visible.map(s => [new Date(s.soldAt).toLocaleDateString("es-MX"), new Date(s.soldAt).toLocaleTimeString("es-MX", {hour:"2-digit",minute:"2-digit"}), s.folio, s.status === "cancelled" ? "Cancelada" : "Completada", s.items.map(i => i.productName + " (" + i.sku + ") x" + i.quantity).join(" | "), s.items.reduce((n,i)=>n+i.quantity,0), methods[s.paymentMethod] ?? s.paymentMethod, (s.status === "completed" ? Number(s.total) : 0).toFixed(2), s.userName ?? "Usuario eliminado", ...(isAdmin ? [ (s.status === "completed" ? s.items.reduce((n,i)=>n+Number(i.lineCost),0) : 0).toFixed(2), (s.status === "completed" ? s.grossProfit : 0).toFixed(2)] : []), s.notes ?? "", s.status === "cancelled" ? (s.cancellationReason ?? "No especificado") : ""]);
-    const esc = (v: string | number) => { const text = String(v); return /[;"
-\r]/.test(text) ? '"' + text.replace(/"/g,'""') + '"' : text; };
-    const csv = "\uFEFF" + [headers, ...rows].map(row => row.map(esc).join(";")).join("\r
-");
+    const esc = (v: string | number) => { const text = String(v); return /[;"\n\r]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text; };
+    const csv = "\uFEFF" + [headers, ...rows].map(row => row.map(esc).join(";")).join("\r\n");
     const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"}); const url = URL.createObjectURL(blob);
     const a = document.createElement("a"); a.href=url; a.download="ventas-papeleria-"+new Date().toISOString().slice(0,10)+".csv"; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
   }
