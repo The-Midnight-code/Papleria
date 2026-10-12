@@ -43,6 +43,8 @@ export async function registerSale(formData: FormData) {
     if (!Number.isFinite(received) || received > 9999999999.99) return { error: "El importe recibido supera el límite permitido." };
 
     const result = await db.transaction(async tx => {
+      // Serializa ventas y cierre para impedir que una venta entre mientras se cierra la caja.
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ((now() AT TIME ZONE 'America/Tijuana')::date)::text))`);
       const [closedDay] = await tx.select({id:cashClosures.id}).from(cashClosures).where(sql`business_date = (now() AT TIME ZONE 'America/Tijuana')::date`).limit(1);
       if (closedDay) throw new Error("La caja de hoy ya fue cerrada. No se pueden registrar más ventas en esta fecha.");
       const locked = [];
