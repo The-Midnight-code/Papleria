@@ -21,3 +21,4 @@ ALTER TABLE "cash_closures" ADD CONSTRAINT "cash_closures_opening_float_nonnegat
 ALTER TABLE "cash_closures" ADD CONSTRAINT "cash_closures_cash_in_nonnegative" CHECK ("cash_in" >= 0);
 ALTER TABLE "cash_closures" ADD CONSTRAINT "cash_closures_cash_out_nonnegative" CHECK ("cash_out" >= 0);
 ALTER TABLE "cash_closures" ADD CONSTRAINT "cash_closures_cash_expected_nonnegative" CHECK ("cash_expected" >= 0);
+CREATE UNIQUE INDEX "cash_register_one_opening_per_day_idx" ON "cash_register_movements" ("business_date") WHERE "type" = 'opening';
