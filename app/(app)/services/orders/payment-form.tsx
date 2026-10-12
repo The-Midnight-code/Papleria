@@ -49,13 +49,11 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
   }
 
   return (
-    <form action={handleSubmit} className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Saldo pendiente:{" "}
-        <span className="font-semibold text-foreground">
-          ${balance.toFixed(2)} MXN
-        </span>
-      </p>
+    <form action={handleSubmit} className="space-y-5">
+      <div className="flex flex-col gap-1 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+        <span className="text-sm font-semibold text-amber-900">Saldo pendiente</span>
+        <span className="text-xl font-bold tabular-nums text-amber-950">${balance.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5">
@@ -67,7 +65,7 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
             max={balance.toFixed(2)}
             step="0.01"
             required
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
             placeholder="0.00"
           />
         </label>
@@ -78,7 +76,7 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
             name="paymentMethod"
             required
             defaultValue="CASH"
-            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
+            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
           >
             {paymentMethods.map((method) => (
               <option key={method.value} value={method.value}>
@@ -95,19 +93,19 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
           name="notes"
           maxLength={500}
           rows={2}
-          className="w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
+          className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
           placeholder="Referencia o comentario del pago"
         />
       </label>
 
       {error && (
-        <p role="alert" className="text-sm text-red-400">
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
           {error}
         </p>
       )}
 
       {success && (
-        <p role="status" className="text-sm text-emerald-400">
+        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
           {success}
         </p>
       )}
@@ -115,7 +113,7 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center justify-center rounded-xl bg-[#FFD400] px-5 py-2.5 font-bold text-gray-900 shadow-sm transition hover:bg-[#f2ca00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
       >
         {isPending ? "Registrando..." : "Registrar abono"}
       </button>
