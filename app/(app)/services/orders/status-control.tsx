@@ -68,15 +68,21 @@ export function StatusControl({
 
   if (options.length === 0) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Esta orden ya tiene un estado final y no admite más cambios.
-      </p>
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Estado actual</p>
+        <p className="mt-1 text-base font-bold text-gray-900">{statusLabels[currentStatus]}</p>
+        <p className="mt-2 text-sm leading-6 text-gray-600">Esta orden ya tiene un estado final y no admite más cambios.</p>
+      </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <p className="text-sm leading-6 text-gray-600">Selecciona el siguiente estado permitido para esta orden. El cambio se reflejará en el listado y en el detalle.</p>
+      <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-amber-800">Estado actual</p>
+        <p className="mt-1 text-base font-bold text-gray-900">{statusLabels[currentStatus]}</p>
+        <p className="mt-2 text-sm leading-6 text-gray-600">Selecciona el siguiente estado permitido. El cambio se reflejará en el listado y en el detalle.</p>
+      </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <select
           aria-label="Nuevo estado de la orden"
