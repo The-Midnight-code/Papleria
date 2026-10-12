@@ -104,7 +104,7 @@ export async function registerSale(formData: FormData) {
       }
       await tx.insert(activityLogs).values({
         userId:user.id,module:"sales",action:"REGISTER_SALE",entityType:"sale",entityId:sale.id,newValue:sale.total,
-        metadata:{folio:sale.folio,paymentMethod,itemCount:priced.length,total:sale.total,discountTotal:sale.discountTotal,promotionalDiscount:(promoTotalCents/100).toFixed(2),manualDiscount:(manualCents/100).toFixed(2)},
+        metadata:{folio:sale.folio,paymentMethod,itemCount:priced.length,total:sale.total,discountTotal:((subtotalCents-totalCents)/100).toFixed(2),promotionalDiscount:(promoTotalCents/100).toFixed(2),manualDiscount:(manualCents/100).toFixed(2)},
       });
       return {id:sale.id,folio:sale.folio};
     });
