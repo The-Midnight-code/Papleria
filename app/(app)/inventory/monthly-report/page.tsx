@@ -2,11 +2,11 @@ import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db/db";
 import { inventoryMovements, products, users } from "@/db/schema";
-import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
+import { requireAdmin } from "@/lib/auth/authorization";
 import { MonthlyInventoryReport } from "../monthly-inventory-report";
 
 export default async function MonthlyInventoryReportPage() {
-  await requireEmployeeOrAdmin();
+  await requireAdmin();
   const movements = await db.select({
     id: inventoryMovements.id,
     productName: products.name,
