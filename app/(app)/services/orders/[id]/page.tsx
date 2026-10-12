@@ -56,9 +56,9 @@ function DetailItem({
   children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-1">
-      <p className="text-sm leading-5 text-gray-500">{label}</p>
-      <div className="font-medium">{children}</div>
+    <div className="space-y-1.5">
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</p>
+      <div className="font-semibold leading-6 text-gray-900">{children}</div>
     </div>
   );
 }
@@ -103,7 +103,7 @@ export default async function ServiceOrderDetailPage({
         );
 
   return (
-    <main className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
+    <main className="mx-auto w-full max-w-6xl space-y-6 p-4 sm:p-6">
       <header className="space-y-3">
         <Link
           href="/services/orders"
@@ -114,20 +114,20 @@ export default async function ServiceOrderDetailPage({
 
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
           <div className="space-y-1">
-            <p className="text-sm text-muted-foreground">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#FFD400]">
               Orden {order.orderNumber}
             </p>
             <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{order.serviceName}</h1>
             <p className="text-sm text-white/75">{order.customerName}</p>
           </div>
 
-          <span className="inline-flex w-fit rounded-full border border-white/60 bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-700">
+          <span className={`inline-flex w-fit rounded-full border px-3 py-1.5 text-xs font-semibold ${({"PENDING_QUOTE":"border-amber-200 bg-amber-50 text-amber-800","AWAITING_DEPOSIT":"border-orange-200 bg-orange-50 text-orange-800","IN_PROGRESS":"border-blue-200 bg-blue-50 text-blue-800","READY":"border-teal-200 bg-teal-50 text-teal-800","DELIVERED":"border-emerald-200 bg-emerald-50 text-emerald-800","CANCELLED":"border-gray-200 bg-gray-100 text-gray-700"} as Record<string,string>)[order.status] ?? "border-gray-200 bg-gray-100 text-gray-700"}` }>
             {statusLabels[order.status] ?? order.status}
           </span>
         </div>
       </header>
 
-      <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-sm sm:p-6">
+      <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
         <h2 className="text-lg font-bold tracking-tight text-gray-900">Datos del cliente</h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
@@ -138,8 +138,8 @@ export default async function ServiceOrderDetailPage({
         </div>
       </section>
 
-      <section className="space-y-5 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Especificaciones del trabajo</h2>
+      <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">Especificaciones del trabajo</h2>
 
         <DetailItem label="Servicio">{order.serviceName}</DetailItem>
 
@@ -156,8 +156,8 @@ export default async function ServiceOrderDetailPage({
         </DetailItem>
       </section>
 
-      <section className="space-y-5 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Precio y pagos</h2>
+      <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">Precio y pagos</h2>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <DetailItem label="Precio acordado">
@@ -175,14 +175,14 @@ export default async function ServiceOrderDetailPage({
           </DetailItem>
         </div>
 
-        <div className="space-y-3 border-t border-gray-100 pt-4">
+        <div className="space-y-3 border-t border-gray-100 pt-5">
           <h3 className="font-semibold text-gray-900">Historial de pagos</h3>
 
           {initialDeposit > 0 && (
-            <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-200 bg-gray-50/70 p-4 sm:flex-row sm:items-center">
+            <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:flex-row sm:items-center">
               <div>
                 <p className="font-semibold text-gray-900">Anticipo inicial</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-gray-500">
                   Registrado al crear la orden
                 </p>
               </div>
@@ -226,14 +226,14 @@ export default async function ServiceOrderDetailPage({
         balance !== null &&
         balance > 0 &&
         order.status !== "CANCELLED" && (
-          <section className="space-y-4 rounded-xl border border-border bg-card p-5">
-            <h2 className="text-lg font-semibold">Registrar abono</h2>
+          <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
+            <h2 className="text-lg font-bold tracking-tight text-gray-900">Registrar abono</h2>
             <PaymentForm orderId={order.id} balance={balance} />
           </section>
         )}
 
-      <section className="space-y-5 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Fechas de entrega</h2>
+      <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">Fechas de entrega</h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <DetailItem label="Fecha solicitada">
@@ -246,13 +246,13 @@ export default async function ServiceOrderDetailPage({
         </div>
       </section>
 
-      <section className="space-y-4 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Actualizar estado</h2>
+      <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">Actualizar estado</h2>
         <StatusControl orderId={order.id} currentStatus={order.status} />
       </section>
 
-      <section className="space-y-4 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Registro de la orden</h2>
+      <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">Registro de la orden</h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <DetailItem label="Creada">
