@@ -65,5 +65,13 @@
       "tag": "0008_point_of_sale",
       "breakpoints": true
     }
+  ],
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1791840000000,
+      "tag": "0009_sale_cancellations",
+      "breakpoints": true
+    }
   ]
 }
