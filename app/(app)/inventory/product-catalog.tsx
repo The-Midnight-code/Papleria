@@ -39,6 +39,13 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
   const lowCount = products.filter((product) => product.active && product.stockQuantity > 0 && product.stockQuantity <= product.minStock).length;
   const outCount = products.filter((product) => product.active && product.stockQuantity === 0).length;
   const stockValue = products.reduce((sum, product) => sum + Number(product.costPrice) * product.stockQuantity, 0);
+  const alertProducts = products
+    .filter((product) => product.active && (product.stockQuantity === 0 || product.stockQuantity <= product.minStock))
+    .sort((a, b) => {
+      if (a.stockQuantity === 0 && b.stockQuantity !== 0) return -1;
+      if (b.stockQuantity === 0 && a.stockQuantity !== 0) return 1;
+      return a.stockQuantity - b.stockQuantity || a.name.localeCompare(b.name, "es-MX");
+    });
 
   function submitProduct(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -103,9 +110,28 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
       <section aria-label="Resumen del inventario" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Productos registrados</p><p className="mt-1 text-2xl font-bold text-gray-900">{products.length}</p></article>
         <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Valor al costo</p><p className="mt-1 text-2xl font-bold text-gray-900">{stockValue.toLocaleString("es-MX", { style: "currency", currency: "MXN" })}</p></article>
-        <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Stock bajo</p><p className="mt-1 text-2xl font-bold text-amber-700">{lowCount}</p></article>
-        <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Agotados</p><p className="mt-1 text-2xl font-bold text-red-700">{outCount}</p></article>
+        <button type="button" onClick={() => setStockFilter(stockFilter === "low" ? "all" : "low")} aria-pressed={stockFilter === "low"} className={"rounded-2xl border bg-white/95 p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md " + (stockFilter === "low" ? "border-amber-400 ring-2 ring-amber-200" : "border-white/60")}><p className="text-sm font-medium text-gray-500">Stock bajo</p><p className="mt-1 text-2xl font-bold text-amber-700">{lowCount}</p><p className="mt-1 text-xs text-gray-500">Ver productos por reabastecer</p></button>
+        <button type="button" onClick={() => setStockFilter(stockFilter === "out" ? "all" : "out")} aria-pressed={stockFilter === "out"} className={"rounded-2xl border bg-white/95 p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md " + (stockFilter === "out" ? "border-red-400 ring-2 ring-red-200" : "border-white/60")}><p className="text-sm font-medium text-gray-500">Agotados</p><p className="mt-1 text-2xl font-bold text-red-700">{outCount}</p><p className="mt-1 text-xs text-gray-500">Ver productos sin existencias</p></button>
       </section>
+
+      {alertProducts.length > 0 && (
+        <section aria-labelledby="inventory-alerts-title" className="overflow-hidden rounded-2xl border border-amber-200 bg-white shadow-sm">
+          <div className="flex flex-col gap-2 border-b border-amber-100 bg-amber-50/80 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+            <div><h2 id="inventory-alerts-title" className="font-bold text-gray-900">Alertas de reabastecimiento</h2><p className="mt-0.5 text-sm text-gray-600">{alertProducts.length} {alertProducts.length === 1 ? "producto necesita" : "productos necesitan"} atención por sus existencias.</p></div>
+            <button type="button" onClick={() => setStockFilter("low")} className="self-start rounded-lg border border-amber-200 bg-white px-3 py-2 text-sm font-semibold text-amber-900 transition hover:bg-amber-100 sm:self-auto">Ver stock bajo</button>
+          </div>
+          <div className="divide-y divide-gray-100">
+            {alertProducts.slice(0, 5).map((product) => {
+              const out = product.stockQuantity === 0;
+              return <button key={product.id} type="button" onClick={() => { setQuery(product.sku); setStockFilter("all"); }} className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-gray-50 sm:px-5">
+                <span className="min-w-0"><span className="block truncate text-sm font-semibold text-gray-900">{product.name}</span><span className="block text-xs text-gray-500">SKU: {product.sku} · mínimo: {product.minStock}</span></span>
+                <span className={"shrink-0 rounded-full px-2.5 py-1 text-xs font-bold " + (out ? "bg-red-50 text-red-700" : "bg-amber-50 text-amber-800")}>{out ? "Agotado" : "Stock bajo"} · {product.stockQuantity}</span>
+              </button>;
+            })}
+          </div>
+          {alertProducts.length > 5 && <div className="border-t border-gray-100 px-4 py-3 text-center text-sm text-gray-500">Hay {alertProducts.length - 5} alertas más. Usa los filtros para consultarlas todas.</div>}
+        </section>
+      )}
 
       <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-4 shadow-md sm:p-5">
         <div className="flex flex-col gap-3 sm:flex-row">
