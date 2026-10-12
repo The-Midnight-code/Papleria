@@ -220,12 +220,18 @@ export function ServiceForm({ service }: ServiceFormProps) {
         </p>
       )}
       {success && (
-        <p
+        <div
           role="status"
-          className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
+          className="space-y-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700"
         >
-          {success}
-        </p>
+          <p>{success}</p>
+          <Link
+            href="/services"
+            className="inline-flex font-semibold underline underline-offset-4 hover:text-emerald-900 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700"
+          >
+            Volver al catálogo
+          </Link>
+        </div>
       )}
 
       <div className="border-t border-gray-100 pt-4">
