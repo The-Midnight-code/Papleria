@@ -1,4 +1,4 @@
-import { check, date, index, numeric, pgTable, timestamp, uuid, varchar, integer } from "drizzle-orm/pg-core";
+import { check, index, numeric, pgTable, timestamp, uuid, varchar, integer } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users } from "./users";
 
