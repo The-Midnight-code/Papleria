@@ -24,6 +24,13 @@ type Props = {
   services: Service[];
 };
 
+const sortOptions = [
+  { value: "newest", label: "Más recientes" },
+  { value: "name", label: "Nombre A–Z" },
+  { value: "price-asc", label: "Precio: menor a mayor" },
+  { value: "price-desc", label: "Precio: mayor a menor" },
+] as const;
+
 const filters = [
   { value: "all", label: "Todos los servicios" },
   { value: "active", label: "Activos" },
@@ -35,11 +42,12 @@ const filters = [
 export function ServiceCatalog({ services }: Props) {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<(typeof filters)[number]["value"]>("all");
+  const [sort, setSort] = useState<(typeof sortOptions)[number]["value"]>("newest");
 
   const visibleServices = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase("es-MX");
 
-    return services.filter((service) => {
+    const filtered = services.filter((service) => {
       const matchesQuery =
         !normalizedQuery ||
         [service.name, service.category, service.description ?? ""].some((value) =>
@@ -55,12 +63,22 @@ export function ServiceCatalog({ services }: Props) {
 
       return matchesQuery && matchesFilter;
     });
-  }, [services, query, filter]);
+
+    return filtered.sort((a, b) => {
+      if (sort === "name") return a.name.localeCompare(b.name, "es-MX");
+      if (sort === "price-asc" || sort === "price-desc") {
+        const priceA = a.requiresQuote || a.price == null ? Number.POSITIVE_INFINITY : Number(a.price);
+        const priceB = b.requiresQuote || b.price == null ? Number.POSITIVE_INFINITY : Number(b.price);
+        return sort === "price-asc" ? priceA - priceB : priceB - priceA;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+  }, [services, query, filter, sort]);
 
   return (
     <div className="space-y-4">
       {services.length > 0 && (
-        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_190px_220px]">
           <div className="relative">
             <label htmlFor="service-search" className="sr-only">
               Buscar servicios
@@ -100,6 +118,24 @@ export function ServiceCatalog({ services }: Props) {
               ))}
             </select>
           </div>
+
+          <div>
+            <label htmlFor="service-sort" className="sr-only">
+              Ordenar servicios
+            </label>
+            <select
+              id="service-sort"
+              value={sort}
+              onChange={(event) => setSort(event.target.value as (typeof sortOptions)[number]["value"])}
+              className="min-h-11 w-full rounded-xl border border-white/70 bg-white px-3.5 py-2.5 text-sm text-gray-900 shadow-sm outline-none transition focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10"
+            >
+              {sortOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
@@ -130,6 +166,7 @@ export function ServiceCatalog({ services }: Props) {
             onClick={() => {
               setQuery("");
               setFilter("all");
+              setSort("newest");
             }}
             className="mt-4 rounded-lg px-3 py-2 text-sm font-semibold text-[#176B7A] transition hover:bg-[#176B7A]/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176B7A]"
           >
