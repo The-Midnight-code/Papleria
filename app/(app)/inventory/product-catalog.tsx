@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { createProduct } from "./product-actions";
+import { createProduct, setProductActive, updateProduct } from "./product-actions";
 
 type Product = {
   id: string;
@@ -21,6 +21,7 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
   const [query, setQuery] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [pending, startTransition] = useTransition();
@@ -58,6 +59,45 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
     });
   }
 
+  function submitEdit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editingProduct) return;
+    const formData = new FormData(event.currentTarget);
+    setError("");
+    setSuccess("");
+    startTransition(async () => {
+      const result = await updateProduct(editingProduct.id, formData);
+      if ("error" in result && result.error) {
+        setError(result.error);
+        return;
+      }
+      setSuccess("Producto actualizado correctamente.");
+      setEditingProduct(null);
+      window.location.reload();
+    });
+  }
+
+  function toggleProduct(product: Product) {
+    const nextActive = !product.active;
+    const confirmed = window.confirm(
+      nextActive
+        ? `¿Quieres volver a activar “${product.name}”?`
+        : `¿Quieres desactivar “${product.name}”? El producto se conservará en el historial.`,
+    );
+    if (!confirmed) return;
+    setError("");
+    setSuccess("");
+    startTransition(async () => {
+      const result = await setProductActive(product.id, nextActive);
+      if ("error" in result && result.error) {
+        setError(result.error);
+        return;
+      }
+      setSuccess(nextActive ? "Producto activado correctamente." : "Producto desactivado correctamente.");
+      window.location.reload();
+    });
+  }
+
   return (
     <div className="space-y-6">
       <section aria-label="Resumen del inventario" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -87,6 +127,28 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
         {success && <p role="status" className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800">{success}</p>}
         {error && <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">{error}</p>}
 
+        {editingProduct && (
+          <form key={editingProduct.id} onSubmit={submitEdit} className="space-y-4 rounded-2xl border border-[#176B7A]/20 bg-[#176B7A]/5 p-4 sm:p-5">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Editar producto</h2>
+              <p className="mt-1 text-sm text-gray-500">Actualiza los datos comerciales. Las existencias se gestionarán mediante movimientos para conservar su historial.</p>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Nombre del producto *</span><input name="name" required maxLength={160} defaultValue={editingProduct.name} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">SKU / código *</span><input name="sku" required maxLength={60} defaultValue={editingProduct.sku} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm uppercase text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Categoría *</span><input name="category" required maxLength={100} defaultValue={editingProduct.category} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Descripción</span><input name="description" maxLength={2000} defaultValue={editingProduct.description ?? ""} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de compra (MXN) *</span><input name="costPrice" required type="number" min="0" max="99999999" step="0.01" defaultValue={editingProduct.costPrice} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de venta (MXN) *</span><input name="salePrice" required type="number" min="0" max="99999999" step="0.01" defaultValue={editingProduct.salePrice} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Avisar cuando haya (o menos) *</span><input name="minStock" required type="number" min="0" max="9999999" step="1" defaultValue={editingProduct.minStock} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+            </div>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button type="button" onClick={() => setEditingProduct(null)} disabled={pending} className="min-h-11 rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100">Cancelar</button>
+              <button type="submit" disabled={pending} className="min-h-11 rounded-xl bg-[#176B7A] px-5 py-2.5 text-sm font-bold text-white disabled:opacity-60">{pending ? "Guardando..." : "Guardar cambios"}</button>
+            </div>
+          </form>
+        )}
+
         {showForm && (
           <form onSubmit={submitProduct} className="space-y-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
             <div><h2 className="text-lg font-bold text-gray-900">Registrar producto</h2><p className="mt-1 text-sm text-gray-500">Captura los datos del artículo y las existencias iniciales.</p></div>
@@ -107,7 +169,7 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
         <div className="overflow-hidden rounded-xl border border-gray-100">
           {visibleProducts.length === 0 ? <div className="px-5 py-12 text-center"><p className="font-semibold text-gray-900">{products.length === 0 ? "Todavía no hay productos" : "No encontramos productos"}</p><p className="mt-1 text-sm text-gray-500">{products.length === 0 ? "Registra el primer producto para comenzar a controlar las existencias." : "Cambia la búsqueda o el filtro para ver otros productos."}</p></div> : (
             <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left">
-              <thead className="bg-gray-50"><tr>{["Producto","SKU","Categoría","Compra","Venta","Existencias","Estado"].map((label) => <th key={label} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</th>)}</tr></thead>
+              <thead className="bg-gray-50"><tr>{["Producto","SKU","Categoría","Compra","Venta","Existencias","Estado","Acciones"].map((label) => <th key={label} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</th>)}</tr></thead>
               <tbody className="divide-y divide-gray-100 bg-white">{visibleProducts.map((product) => {
                 const out = product.stockQuantity === 0;
                 const low = !out && product.stockQuantity <= product.minStock;
@@ -117,6 +179,10 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
                   <td className="px-4 py-4 text-sm text-gray-700">{Number(product.costPrice).toLocaleString("es-MX",{style:"currency",currency:"MXN"})}</td><td className="px-4 py-4 text-sm font-semibold text-gray-900">{Number(product.salePrice).toLocaleString("es-MX",{style:"currency",currency:"MXN"})}</td>
                   <td className="px-4 py-4"><span className="font-bold text-gray-900">{product.stockQuantity}</span><span className="ml-1 text-xs text-gray-400">/ mín. {product.minStock}</span></td>
                   <td className="px-4 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${!product.active ? "bg-gray-100 text-gray-600" : out ? "bg-red-50 text-red-700" : low ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-700"}`}>{!product.active ? "Inactivo" : out ? "Agotado" : low ? "Stock bajo" : "Disponible"}</span></td>
+                  <td className="px-4 py-4"><div className="flex items-center gap-2">
+                    <button type="button" disabled={pending} onClick={() => { setShowForm(false); setEditingProduct(product); setError(""); setSuccess(""); }} className="rounded-lg border border-gray-200 px-3 py-2 text-xs font-semibold text-[#176B7A] hover:bg-[#176B7A]/5 disabled:opacity-50">Editar</button>
+                    <button type="button" disabled={pending} onClick={() => toggleProduct(product)} className={`rounded-lg border px-3 py-2 text-xs font-semibold disabled:opacity-50 ${product.active ? "border-red-200 text-red-700 hover:bg-red-50" : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"}`}>{product.active ? "Desactivar" : "Activar"}</button>
+                  </div></td>
                 </tr>;
               })}</tbody>
             </table></div>
