@@ -27,7 +27,7 @@ export async function cancelSale(saleId: string, reasonInput: string) {
       }).formatToParts(sale.soldAt);
       const datePart = (type: string) => dateParts.find(part => part.type === type)?.value ?? "";
       const businessDate = datePart("year") + "-" + datePart("month") + "-" + datePart("day");
-      await tx.execute(sql.raw("select pg_advisory_xact_lock(hashtext('papeleria-cash:' || '" + businessDate + "'))"));
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ${businessDate}))`);
       const [existingClosure] = await tx.select({ id: cashClosures.id })
         .from(cashClosures).where(eq(cashClosures.businessDate, businessDate)).limit(1);
       if (existingClosure) {
