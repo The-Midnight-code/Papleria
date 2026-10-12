@@ -53,18 +53,20 @@ function formatDate(value: string | null) {
 
 export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "AWAITING_DEPOSIT" | "READY">("all");
   const filteredOrders = useMemo(() => {
     const term = search.trim().toLocaleLowerCase("es-MX");
-    if (!term) return orders;
-    return orders.filter((order) =>
-      order.customerName.toLocaleLowerCase("es-MX").includes(term),
-    );
-  }, [orders, search]);
+    return orders.filter((order) => {
+      const matchesSearch = !term || [order.customerName, order.serviceName, order.orderNumber].some((value) => value.toLocaleLowerCase("es-MX").includes(term));
+      const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [orders, search, statusFilter]);
 
   return (
     <>
       <section className="grid gap-4 sm:grid-cols-3">
-        <article className="rounded-2xl border border-white/60 bg-white/95 p-5 shadow-sm transition hover:shadow-md">
+        <article className="rounded-2xl border border-white/60 bg-white/95 p-5 shadow-sm">
           <p className="text-sm font-semibold text-[#176B7A]">
             Órdenes activas
           </p>
@@ -72,7 +74,7 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
             {orders.length}
           </p>
         </article>
-        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition hover:shadow-xl">
+        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg">
           <p className="text-sm font-semibold text-[#176B7A]">
             Trabajos activos
           </p>
@@ -93,6 +95,20 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
           </p>
         </article>
       </section>
+
+      {orders.length > 0 && (
+        <section className="grid gap-3 sm:grid-cols-3">
+          <button type="button" onClick={() => setStatusFilter("all")} className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${statusFilter === "all" ? "border-[#FFD400] bg-white text-gray-900 ring-2 ring-[#FFD400]/40" : "border-white/50 bg-white/80 text-gray-700 hover:bg-white"}`}>
+            Todas las órdenes <span className="ml-1 text-gray-500">({orders.length})</span>
+          </button>
+          <button type="button" onClick={() => setStatusFilter("AWAITING_DEPOSIT")} className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${statusFilter === "AWAITING_DEPOSIT" ? "border-orange-300 bg-orange-50 text-orange-900 ring-2 ring-orange-200" : "border-white/50 bg-white/80 text-gray-700 hover:bg-white"}`}>
+            Esperando anticipo <span className="ml-1 text-gray-500">({orders.filter((order) => order.status === "AWAITING_DEPOSIT").length})</span>
+          </button>
+          <button type="button" onClick={() => setStatusFilter("READY")} className={`rounded-xl border px-4 py-3 text-left text-sm font-semibold transition ${statusFilter === "READY" ? "border-teal-300 bg-teal-50 text-teal-900 ring-2 ring-teal-200" : "border-white/50 bg-white/80 text-gray-700 hover:bg-white"}`}>
+            Listos para entregar <span className="ml-1 text-gray-500">({orders.filter((order) => order.status === "READY").length})</span>
+          </button>
+        </section>
+      )}
 
       {orders.length > 0 && (
         <section className="space-y-3">
@@ -155,7 +171,7 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
           </p>
           <button
             type="button"
-            onClick={() => setSearch("")}
+            onClick={() => { setSearch(""); setStatusFilter("all"); }}
             className="mt-4 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
           >
             Limpiar búsqueda
@@ -178,7 +194,7 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
               <Link
                 key={order.id}
                 href={`/services/orders/${order.id}`}
-                className="block rounded-2xl border border-white/70 bg-white p-5 shadow-md transition duration-200 hover:-translate-y-0.5 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFD400] sm:p-6"
+                className="block rounded-2xl border border-white/70 bg-white p-5 shadow-md transition-shadow duration-200 hover:shadow-xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#FFD400] sm:p-6"
               >
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div className="min-w-0 space-y-1">
