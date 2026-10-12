@@ -2,11 +2,11 @@ import Link from "next/link";
 import { asc } from "drizzle-orm";
 import { db } from "@/db/db";
 import { products } from "@/db/schema";
-import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
+import { requireAdmin } from "@/lib/auth/authorization";
 import { ReplenishmentReport } from "../replenishment-report";
 
 export default async function InventoryReplenishmentPage() {
-  await requireEmployeeOrAdmin();
+  await requireAdmin();
   const productList = await db.select({
     id: products.id,
     name: products.name,
