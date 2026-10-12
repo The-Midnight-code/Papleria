@@ -52,10 +52,11 @@ export async function createProduct(formData: FormData) {
     const parsed = getProductFields(formData);
     if ("error" in parsed) return { error: parsed.error };
     const stockQuantity = parseCount(formData.get("stockQuantity"), "Las existencias");
+    const productValues = user.role === "ADMIN" ? parsed.values : { ...parsed.values, costPrice: "0.00", salePrice: "0.00" };
 
     const result = await db.transaction(async (tx) => {
       const [product] = await tx.insert(products).values({
-        ...parsed.values,
+        ...productValues,
         stockQuantity,
         createdBy: user.id,
       }).returning({ id: products.id, name: products.name, sku: products.sku });
@@ -93,8 +94,9 @@ export async function updateProduct(productId: string, formData: FormData) {
       const [current] = await tx.select().from(products).where(eq(products.id, productId)).limit(1);
       if (!current) throw new Error("El producto ya no existe.");
 
+      const editableValues = user.role === "ADMIN" ? parsed.values : { ...parsed.values, costPrice: current.costPrice, salePrice: current.salePrice };
       const [updated] = await tx.update(products).set({
-        ...parsed.values,
+        ...editableValues,
         updatedAt: new Date(),
       }).where(eq(products.id, productId)).returning({
         id: products.id,
@@ -112,7 +114,7 @@ export async function updateProduct(productId: string, formData: FormData) {
         newValue: updated.sku,
         metadata: {
           previous: { name: current.name, sku: current.sku, category: current.category, costPrice: current.costPrice, salePrice: current.salePrice, minStock: current.minStock },
-          updated: { name: updated.name, sku: updated.sku, category: parsed.values.category, costPrice: parsed.values.costPrice, salePrice: parsed.values.salePrice, minStock: parsed.values.minStock },
+          updated: { name: updated.name, sku: updated.sku, category: parsed.values.category, costPrice: updated.costPrice, salePrice: updated.salePrice, minStock: parsed.values.minStock },
         },
       });
       return updated;
