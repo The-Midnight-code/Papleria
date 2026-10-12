@@ -8,15 +8,23 @@ function getActionLabel(action: string) {
   const labels: Record<string, string> = {
     CREATE: "Creó",
     DELETE: "Eliminó",
-    ACTIVATE: "Activó usuario",
-    DEACTIVATE: "Desactivó usuario",
+    ACTIVATE: "Activó el usuario",
+    DEACTIVATE: "Desactivó el usuario",
     PAID: "Marcó como pagado",
     UNPAID: "Marcó como no pagado",
-    UPDATE_PAYMENT_STATUS: "Actualizó estado de pago",
-    DELETE_LIST: "Eliminó lista",
-    CHANGE_PASSWORD: "Cambió su contraseña",
-    UPDATE_PROFILE: "Actualizó su perfil",
-    COMPLETE: "Marcó como realizado",
+    UPDATE_PAYMENT_STATUS: "Actualizó el estado de pago",
+    DELETE_LIST: "Eliminó la lista",
+    CHANGE_PASSWORD: "Cambió la contraseña",
+    UPDATE_PROFILE: "Actualizó el perfil",
+    COMPLETE: "Marcó como completado", // o "Marcó como realizado"
+    CREATE_SERVICE: "Creó un servicio",
+    UPDATE_SERVICE_IMAGE: "Actualizó la imagen del servicio",
+    ACTIVATE_SERVICE: "Activó el servicio",
+    DEACTIVATE_SERVICE: "Desactivó el servicio",
+    UPDATE_SERVICE: "Actualizó el servicio",
+    CREATE_SERVICE_ORDER: "Creó una orden de servicio",
+    REGISTER_SERVICE_ORDER_PAYMENT: "Registró un abono al servicio",
+    UPDATE_SERVICE_ORDER_STATUS: "Actualizó el estado de la orden",
   };
 
   return labels[action] ?? action;
