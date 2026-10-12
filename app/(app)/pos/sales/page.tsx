@@ -11,14 +11,14 @@ export default async function SalesPage() {
   const cancellationUsers = alias(users, "cancellation_users");
   const rows = await db.select({
     id: sales.id, folio: sales.folio, paymentMethod: sales.paymentMethod, subtotal: sales.subtotal,
-    total: sales.total, amountReceived: sales.amountReceived, changeDue: sales.changeDue,
+    total: sales.total, discountTotal: sales.discountTotal, amountReceived: sales.amountReceived, changeDue: sales.changeDue,
     status: sales.status, cancellationReason: sales.cancellationReason, cancelledAt: sales.cancelledAt, cancelledByName: cancellationUsers.name, notes: sales.notes, soldAt: sales.soldAt, soldBy: sales.soldBy, userName: users.name,
   }).from(sales).leftJoin(users, eq(sales.soldBy, users.id)).leftJoin(cancellationUsers, eq(sales.cancelledBy, cancellationUsers.id)).orderBy(desc(sales.soldAt)).limit(500);
   const allowed = user.role === "ADMIN" ? rows : rows.filter(row => row.soldBy === user.id);
   const ids = allowed.map(row => row.id);
   const allItems = ids.length ? await db.select({
     saleId: saleItems.saleId, productName: saleItems.productName, sku: saleItems.sku, quantity: saleItems.quantity,
-    unitPrice: saleItems.unitPrice, unitCost: saleItems.unitCost, lineTotal: saleItems.lineTotal, lineCost: saleItems.lineCost,
+    originalUnitPrice: saleItems.originalUnitPrice, unitPrice: saleItems.unitPrice, discountAmount: saleItems.discountAmount, promotionName: saleItems.promotionName, unitCost: saleItems.unitCost, lineTotal: saleItems.lineTotal, lineCost: saleItems.lineCost,
   }).from(saleItems).where(inArray(saleItems.saleId, ids)) : [];
   const itemsBySale = new Map<string, typeof allItems>();
   for (const item of allItems) itemsBySale.set(item.saleId, [...(itemsBySale.get(item.saleId) ?? []), item]);
