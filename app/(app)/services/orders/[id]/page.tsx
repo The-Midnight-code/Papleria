@@ -57,7 +57,7 @@ function DetailItem({
 }) {
   return (
     <div className="space-y-1">
-      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-sm leading-5 text-gray-500">{label}</p>
       <div className="font-medium">{children}</div>
     </div>
   );
@@ -103,11 +103,11 @@ export default async function ServiceOrderDetailPage({
         );
 
   return (
-    <main className="mx-auto w-full max-w-4xl space-y-6 p-4 sm:p-6">
+    <main className="mx-auto w-full max-w-5xl space-y-6 p-4 sm:p-6">
       <header className="space-y-3">
         <Link
           href="/services/orders"
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="inline-flex text-sm font-medium text-white/75 transition hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
         >
           ← Volver a órdenes
         </Link>
@@ -117,18 +117,18 @@ export default async function ServiceOrderDetailPage({
             <p className="text-sm text-muted-foreground">
               Orden {order.orderNumber}
             </p>
-            <h1 className="text-3xl font-bold">{order.serviceName}</h1>
-            <p className="text-muted-foreground">{order.customerName}</p>
+            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{order.serviceName}</h1>
+            <p className="text-sm text-white/75">{order.customerName}</p>
           </div>
 
-          <span className="inline-flex w-fit rounded-full border border-border bg-muted px-3 py-1.5 text-sm font-medium">
+          <span className="inline-flex w-fit rounded-full border border-white/60 bg-white/95 px-3 py-1.5 text-sm font-semibold text-gray-700">
             {statusLabels[order.status] ?? order.status}
           </span>
         </div>
       </header>
 
-      <section className="space-y-5 rounded-xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Datos del cliente</h2>
+      <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-sm sm:p-6">
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">Datos del cliente</h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <DetailItem label="Nombre">{order.customerName}</DetailItem>
@@ -145,11 +145,11 @@ export default async function ServiceOrderDetailPage({
 
         <DetailItem label="Indicaciones">
           {order.specifications ? (
-            <p className="whitespace-pre-wrap font-normal">
+            <p className="whitespace-pre-wrap font-normal leading-6 text-gray-700">
               {order.specifications}
             </p>
           ) : (
-            <span className="font-normal text-muted-foreground">
+            <span className="font-normal text-gray-500">
               Sin especificaciones adicionales
             </span>
           )}
@@ -175,18 +175,18 @@ export default async function ServiceOrderDetailPage({
           </DetailItem>
         </div>
 
-        <div className="space-y-3 border-t border-border pt-4">
-          <h3 className="font-semibold">Historial de pagos</h3>
+        <div className="space-y-3 border-t border-gray-100 pt-4">
+          <h3 className="font-semibold text-gray-900">Historial de pagos</h3>
 
           {initialDeposit > 0 && (
-            <div className="flex flex-col justify-between gap-1 rounded-lg border border-border p-3 sm:flex-row sm:items-center">
+            <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-200 bg-gray-50/70 p-4 sm:flex-row sm:items-center">
               <div>
-                <p className="font-medium">Anticipo inicial</p>
+                <p className="font-semibold text-gray-900">Anticipo inicial</p>
                 <p className="text-sm text-muted-foreground">
                   Registrado al crear la orden
                 </p>
               </div>
-              <p className="font-semibold">{formatMoney(initialDeposit)}</p>
+              <p className="text-lg font-bold tabular-nums text-gray-900">{formatMoney(initialDeposit)}</p>
             </div>
           )}
 
@@ -199,7 +199,7 @@ export default async function ServiceOrderDetailPage({
           {payments.map((payment) => (
             <div
               key={payment.id}
-              className="flex flex-col justify-between gap-2 rounded-lg border border-border p-3 sm:flex-row sm:items-center"
+              className="flex flex-col justify-between gap-2 rounded-xl border border-gray-200 bg-gray-50/70 p-4 sm:flex-row sm:items-center"
             >
               <div className="space-y-1">
                 <p className="font-medium">
@@ -216,7 +216,7 @@ export default async function ServiceOrderDetailPage({
                 )}
               </div>
 
-              <p className="font-semibold">{formatMoney(payment.amount)}</p>
+              <p className="text-lg font-bold tabular-nums text-gray-900">{formatMoney(payment.amount)}</p>
             </div>
           ))}
         </div>
