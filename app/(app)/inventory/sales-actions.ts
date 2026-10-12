@@ -1,9 +1,9 @@
 "use server";
 
-import { and, eq, lte, gte } from "drizzle-orm";
+import { and, eq, lte, gte, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
-import { activityLogs, inventoryMovements, products, promotions, saleItems, sales } from "@/db/schema";
+import { activityLogs, cashClosures, inventoryMovements, products, promotions, saleItems, sales } from "@/db/schema";
 import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -43,6 +43,8 @@ export async function registerSale(formData: FormData) {
     if (!Number.isFinite(received) || received > 9999999999.99) return { error: "El importe recibido supera el límite permitido." };
 
     const result = await db.transaction(async tx => {
+      const [closedDay] = await tx.select({id:cashClosures.id}).from(cashClosures).where(sql`business_date = (now() AT TIME ZONE 'America/Tijuana')::date`).limit(1);
+      if (closedDay) throw new Error("La caja de hoy ya fue cerrada. No se pueden registrar más ventas en esta fecha.");
       const locked = [];
       for (const item of [...submitted].sort((a,b) => a.productId.localeCompare(b.productId))) {
         const [product] = await tx.select().from(products).where(eq(products.id,item.productId)).for("update").limit(1);
