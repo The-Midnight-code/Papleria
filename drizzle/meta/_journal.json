@@ -2,76 +2,15 @@
   "version": "7",
   "dialect": "postgresql",
   "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1791569822926,
-      "tag": "0000_moaning_vindicator",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1791578041551,
-      "tag": "0001_grey_ezekiel",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1791578680727,
-      "tag": "0002_wild_abomination",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1791580592032,
-      "tag": "0003_tranquil_jigsaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1791581482609,
-      "tag": "0004_wet_gargoyle",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1791835206865,
-      "tag": "0005_add_products_inventory",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1791836700000,
-      "tag": "0006_inventory_movements",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1791837600000,
-      "tag": "0007_supplier_purchases",
-      "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "7",
-      "when": 1791838200000,
-      "tag": "0008_point_of_sale",
-      "breakpoints": true
-    }
-  ],
-    {
-      "idx": 9,
-      "version": "7",
-      "when": 1791840000000,
-      "tag": "0009_sale_cancellations",
-      "breakpoints": true
-    }
+    {"idx":0,"version":"7","when":1791569822926,"tag":"0000_moaning_vindicator","breakpoints":true},
+    {"idx":1,"version":"7","when":1791578041551,"tag":"0001_grey_ezekiel","breakpoints":true},
+    {"idx":2,"version":"7","when":1791578680727,"tag":"0002_wild_abomination","breakpoints":true},
+    {"idx":3,"version":"7","when":1791580592032,"tag":"0003_tranquil_jigsaw","breakpoints":true},
+    {"idx":4,"version":"7","when":1791581482609,"tag":"0004_wet_gargoyle","breakpoints":true},
+    {"idx":5,"version":"7","when":1791835206865,"tag":"0005_add_products_inventory","breakpoints":true},
+    {"idx":6,"version":"7","when":1791836700000,"tag":"0006_inventory_movements","breakpoints":true},
+    {"idx":7,"version":"7","when":1791837600000,"tag":"0007_supplier_purchases","breakpoints":true},
+    {"idx":8,"version":"7","when":1791838200000,"tag":"0008_point_of_sale","breakpoints":true},
+    {"idx":9,"version":"7","when":1791840000000,"tag":"0009_sale_cancellations","breakpoints":true}
   ]
 }
