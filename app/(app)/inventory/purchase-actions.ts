@@ -4,14 +4,14 @@ import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
 import { activityLogs, inventoryMovements, products, purchaseItems, purchases } from "@/db/schema";
-import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
+import { requireAdmin } from "@/lib/auth/authorization";
 
 const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const parseMoney = (value: string) => /^\d{1,8}(?:\.\d{1,2})?$/.test(value) ? Number(value) : NaN;
 
 export async function registerPurchase(formData: FormData) {
   try {
-    const user = await requireEmployeeOrAdmin();
+    const user = await requireAdmin();
     const supplierName = String(formData.get("supplierName") ?? "").trim();
     const reference = String(formData.get("reference") ?? "").trim() || null;
     const notes = String(formData.get("notes") ?? "").trim() || null;
