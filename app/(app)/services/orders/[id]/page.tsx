@@ -36,8 +36,9 @@ function formatMoney(value: string | number | null) {
 function formatDate(value: string | null) {
   if (!value) return "Sin fecha";
 
-  const [year, month, day] = value.slice(0, 10).split("-");
-  return `${day}/${month}/${year}`;
+  const [, month, day] = value.slice(0, 10).split("-");
+  const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  return `${Number(day)}/${monthNames[Number(month) - 1]}`;
 }
 
 function formatDateTime(value: Date) {
