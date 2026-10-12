@@ -13,3 +13,4 @@ export * from "./service_order_payments";
 export * from "./products";
 export * from "./movements";
 export * from "./purchases";
+export * from "./sales";
