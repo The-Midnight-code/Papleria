@@ -14,3 +14,4 @@ export * from "./products";
 export * from "./movements";
 export * from "./purchases";
 export * from "./sales";
+export * from "./cash-closures";
