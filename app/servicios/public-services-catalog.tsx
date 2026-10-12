@@ -95,6 +95,7 @@ export default function PublicServicesCatalog({
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
     setSelectedIndex(emblaApi.selectedScrollSnap());
+    setSnapCount(emblaApi.scrollSnapList().length);
   }, [emblaApi]);
 
   useEffect(() => {
