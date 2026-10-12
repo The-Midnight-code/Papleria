@@ -186,6 +186,7 @@ export function ProductCatalog({ products: initialProducts, isAdmin }: { product
               <h2 className="text-lg font-bold text-gray-900">Editar producto</h2>
               <p className="mt-1 text-sm text-gray-500">Actualiza los datos comerciales. Las existencias se gestionarán mediante movimientos para conservar su historial.</p>
             </div>
+            {!isAdmin && <><input type="hidden" name="costPrice" value="0.00" /><input type="hidden" name="salePrice" value="0.00" /></>}
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Nombre del producto *</span><input name="name" required maxLength={160} defaultValue={editingProduct.name} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">SKU / código *</span><input name="sku" required maxLength={60} defaultValue={editingProduct.sku} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm uppercase text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
@@ -205,6 +206,7 @@ export function ProductCatalog({ products: initialProducts, isAdmin }: { product
         {showForm && (
           <form onSubmit={submitProduct} className="space-y-4 rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-5">
             <div><h2 className="text-lg font-bold text-gray-900">Registrar producto</h2><p className="mt-1 text-sm text-gray-500">Captura los datos del artículo y las existencias iniciales.</p></div>
+            {!isAdmin && <><input type="hidden" name="costPrice" value="0.00" /><input type="hidden" name="salePrice" value="0.00" /></>}
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Nombre del producto *</span><input name="name" required maxLength={160} placeholder="Ej. Cuaderno profesional" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">SKU / código *</span><input name="sku" required maxLength={60} placeholder="Ej. CUA-PRO-001" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm uppercase text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
