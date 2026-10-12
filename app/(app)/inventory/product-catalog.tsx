@@ -221,15 +221,15 @@ export function ProductCatalog({ products: initialProducts, isAdmin }: { product
 
         <div className="overflow-hidden rounded-xl border border-gray-100">
           {visibleProducts.length === 0 ? <div className="px-5 py-12 text-center"><p className="font-semibold text-gray-900">{products.length === 0 ? "Todavía no hay productos" : "No encontramos productos"}</p><p className="mt-1 text-sm text-gray-500">{products.length === 0 ? "Registra el primer producto para comenzar a controlar las existencias." : "Cambia la búsqueda o el filtro para ver otros productos."}</p></div> : (
-            <div className="overflow-x-auto"><table className="w-full min-w-[850px] text-left">
-              <thead className="bg-gray-50"><tr>{["Producto","SKU","Categoría","Compra","Venta","Existencias","Estado","Acciones"].map((label) => <th key={label} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</th>)}</tr></thead>
+            <div className="overflow-x-auto"><table className={"w-full " + (isAdmin ? "min-w-[850px]" : "min-w-[650px]") + " text-left"}>
+              <thead className="bg-gray-50"><tr>{(isAdmin ? ["Producto","SKU","Categoría","Compra","Venta","Existencias","Estado","Acciones"] : ["Producto","SKU","Categoría","Existencias","Estado","Acciones"]).map((label) => <th key={label} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</th>)}</tr></thead>
               <tbody className="divide-y divide-gray-100 bg-white">{visibleProducts.map((product) => {
                 const out = product.stockQuantity === 0;
                 const low = !out && product.stockQuantity <= product.minStock;
                 return <tr key={product.id} className="transition-colors hover:bg-gray-50">
                   <td className="px-4 py-4"><p className="font-semibold text-gray-900">{product.name}</p>{product.description && <p className="mt-0.5 max-w-xs truncate text-xs text-gray-500">{product.description}</p>}</td>
                   <td className="px-4 py-4 text-sm font-medium text-gray-600">{product.sku}</td><td className="px-4 py-4 text-sm text-gray-600">{product.category}</td>
-                  <td className="px-4 py-4 text-sm text-gray-700">{Number(product.costPrice).toLocaleString("es-MX",{style:"currency",currency:"MXN"})}</td><td className="px-4 py-4 text-sm font-semibold text-gray-900">{Number(product.salePrice).toLocaleString("es-MX",{style:"currency",currency:"MXN"})}</td>
+                  {isAdmin && <><td className="px-4 py-4 text-sm text-gray-700">{Number(product.costPrice).toLocaleString("es-MX",{style:"currency",currency:"MXN"})}</td><td className="px-4 py-4 text-sm font-semibold text-gray-900">{Number(product.salePrice).toLocaleString("es-MX",{style:"currency",currency:"MXN"})}</td></>}
                   <td className="px-4 py-4"><span className="font-bold text-gray-900">{product.stockQuantity}</span><span className="ml-1 text-xs text-gray-400">/ mín. {product.minStock}</span></td>
                   <td className="px-4 py-4"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ${!product.active ? "bg-gray-100 text-gray-600" : out ? "bg-red-50 text-red-700" : low ? "bg-amber-50 text-amber-800" : "bg-emerald-50 text-emerald-700"}`}>{!product.active ? "Inactivo" : out ? "Agotado" : low ? "Stock bajo" : "Disponible"}</span></td>
                   <td className="px-4 py-4"><div className="flex items-center gap-2">
