@@ -85,6 +85,13 @@
       "when": 1791847200000,
       "tag": "0011_daily_cash_closures",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791850800000,
+      "tag": "0012_cash_register_movements",
+      "breakpoints": true
     }
   ]
 }
