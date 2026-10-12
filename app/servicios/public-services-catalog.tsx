@@ -131,16 +131,16 @@ export default function PublicServicesCatalog({
       >
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#FFD400]">
               Lo más solicitado
             </p>
             <h2
               id="featured-services-title"
-              className="mt-1 text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl"
+              className="mt-1 text-2xl font-bold tracking-tight text-white sm:text-3xl"
             >
               Servicios destacados
             </h2>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-white/80">
               Descubre algunas de las opciones de nuestro catálogo.
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function PublicServicesCatalog({
                 type="button"
                 aria-label="Ver servicios anteriores"
                 onClick={() => emblaApi?.scrollPrev()}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#176B7A] hover:text-[#176B7A] disabled:cursor-not-allowed disabled:opacity-35"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white shadow-sm backdrop-blur transition hover:border-[#FFD400] hover:bg-white/20 hover:text-[#FFD400] disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -210,14 +210,14 @@ export default function PublicServicesCatalog({
         {snapCount > 1 && (
           <div className="mt-5 flex items-center justify-center gap-2">
             {Array.from({ length: snapCount }).map((_, index) => (
-              <button key={index} type="button" aria-label={"Mostrar selección " + (index + 1) + " de servicios"} aria-current={selectedIndex === index ? "true" : undefined} onClick={() => emblaApi?.scrollTo(index)} className={"h-2.5 rounded-full transition-all " + (selectedIndex === index ? "w-7 bg-[#FFD400]" : "w-2.5 bg-slate-300 hover:bg-slate-400")} />
+              <button key={index} type="button" aria-label={"Mostrar selección " + (index + 1) + " de servicios"} aria-current={selectedIndex === index ? "true" : undefined} onClick={() => emblaApi?.scrollTo(index)} className={"h-2.5 rounded-full transition-all " + (selectedIndex === index ? "w-7 bg-[#FFD400]" : "w-2.5 bg-white/50 hover:bg-white/80")} />
             ))}
           </div>
         )}
         {services.length > 1 && (
           <div className="mt-4 flex justify-center gap-3 sm:hidden">
-            <button type="button" onClick={() => emblaApi?.scrollPrev()} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Anterior</button>
-            <button type="button" onClick={() => emblaApi?.scrollNext()} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Siguiente</button>
+            <button type="button" onClick={() => emblaApi?.scrollPrev()} className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">Anterior</button>
+            <button type="button" onClick={() => emblaApi?.scrollNext()} className="rounded-lg border border-white/30 bg-white/10 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">Siguiente</button>
           </div>
         )}
       </section>
