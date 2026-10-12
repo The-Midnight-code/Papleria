@@ -47,6 +47,29 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
       return a.stockQuantity - b.stockQuantity || a.name.localeCompare(b.name, "es-MX");
     });
 
+  function exportCsv() {
+    const headers = ["Producto", "SKU", "Categoría", "Descripción", "Precio de compra (MXN)", "Precio de venta (MXN)", "Existencias", "Stock mínimo", "Estado"];
+    const rows = visibleProducts.map((product) => {
+      const status = !product.active ? "Inactivo" : product.stockQuantity === 0 ? "Agotado" : product.stockQuantity <= product.minStock ? "Stock bajo" : "Disponible";
+      return [product.name, product.sku, product.category, product.description ?? "", product.costPrice, product.salePrice, product.stockQuantity, product.minStock, status];
+    });
+    const escapeCell = (value: string | number) => {
+      const text = String(value);
+      return /[",\\n\\r;]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    };
+    const csv = "\\uFEFF" + [headers, ...rows].map((row) => row.map(escapeCell).join(",")).join("\\r\\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "inventario-papeleria-" + new Date().toISOString().slice(0, 10) + ".csv";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+    setSuccess("Se exportaron " + visibleProducts.length + " productos a CSV.");
+  }
+
   function submitProduct(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
@@ -145,6 +168,9 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
               <option value="all">Todas las existencias</option><option value="low">Stock bajo</option><option value="out">Agotados</option>
             </select>
           </label>
+          <button type="button" onClick={exportCsv} disabled={visibleProducts.length === 0} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-[#176B7A]/25 bg-white px-4 py-2.5 text-sm font-bold text-[#176B7A] shadow-sm transition hover:bg-[#176B7A]/5 disabled:cursor-not-allowed disabled:opacity-50">
+            <span aria-hidden="true">↓</span> Exportar CSV
+          </button>
           <button type="button" onClick={() => { setShowForm(!showForm); setError(""); setSuccess(""); }} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#FFD400] px-5 py-2.5 text-sm font-bold text-gray-900 shadow-sm transition hover:bg-[#f2ca00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#176B7A]">
             {showForm ? "Cerrar formulario" : "+ Nuevo producto"}
           </button>
