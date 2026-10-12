@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/db";
 import { saleItems, sales, users } from "@/db/schema";
 import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
@@ -17,12 +17,12 @@ export default async function SalesPage() {
   const allItems = ids.length ? await db.select({
     saleId: saleItems.saleId, productName: saleItems.productName, sku: saleItems.sku, quantity: saleItems.quantity,
     unitPrice: saleItems.unitPrice, unitCost: saleItems.unitCost, lineTotal: saleItems.lineTotal, lineCost: saleItems.lineCost,
-  }).from(saleItems) : [];
+  }).from(saleItems).where(inArray(saleItems.saleId, ids)) : [];
   const itemsBySale = new Map<string, typeof allItems>();
   for (const item of allItems) itemsBySale.set(item.saleId, [...(itemsBySale.get(item.saleId) ?? []), item]);
   const history = allowed.map(row => ({
-    ...row, soldAt: row.soldAt.toISOString(), items: itemsBySale.get(row.id) ?? [],
-    grossProfit: (itemsBySale.get(row.id) ?? []).reduce((sum, item) => sum + Number(item.lineTotal) - Number(item.lineCost), 0),
+    ...row, soldAt: row.soldAt.toISOString(), items: (itemsBySale.get(row.id) ?? []).map(item => user.role === "ADMIN" ? item : { ...item, unitCost: "0.00", lineCost: "0.00" }),
+    grossProfit: user.role === "ADMIN" ? (itemsBySale.get(row.id) ?? []).reduce((sum, item) => sum + Number(item.lineTotal) - Number(item.lineCost), 0) : 0,
   }));
   return <main className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
     <header><Link href="/pos" className="text-sm text-white/75 transition hover:text-white">← Volver al punto de venta</Link>
