@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
+import { alias } from "drizzle-orm/pg-core";
 import { db } from "@/db/db";
 import { saleItems, sales, users } from "@/db/schema";
 import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
@@ -7,11 +8,12 @@ import { SalesHistory } from "../sales-history";
 
 export default async function SalesPage() {
   const user = await requireEmployeeOrAdmin();
+  const cancellationUsers = alias(users, "cancellation_users");
   const rows = await db.select({
     id: sales.id, folio: sales.folio, paymentMethod: sales.paymentMethod, subtotal: sales.subtotal,
     total: sales.total, amountReceived: sales.amountReceived, changeDue: sales.changeDue,
-    status: sales.status, notes: sales.notes, soldAt: sales.soldAt, soldBy: sales.soldBy, userName: users.name,
-  }).from(sales).leftJoin(users, eq(sales.soldBy, users.id)).orderBy(desc(sales.soldAt)).limit(500);
+    status: sales.status, cancellationReason: sales.cancellationReason, cancelledAt: sales.cancelledAt, cancelledByName: cancellationUsers.name, notes: sales.notes, soldAt: sales.soldAt, soldBy: sales.soldBy, userName: users.name,
+  }).from(sales).leftJoin(users, eq(sales.soldBy, users.id)).leftJoin(cancellationUsers, eq(sales.cancelledBy, cancellationUsers.id)).orderBy(desc(sales.soldAt)).limit(500);
   const allowed = user.role === "ADMIN" ? rows : rows.filter(row => row.soldBy === user.id);
   const ids = allowed.map(row => row.id);
   const allItems = ids.length ? await db.select({
@@ -21,7 +23,7 @@ export default async function SalesPage() {
   const itemsBySale = new Map<string, typeof allItems>();
   for (const item of allItems) itemsBySale.set(item.saleId, [...(itemsBySale.get(item.saleId) ?? []), item]);
   const history = allowed.map(row => ({
-    ...row, soldAt: row.soldAt.toISOString(), items: (itemsBySale.get(row.id) ?? []).map(item => user.role === "ADMIN" ? item : { ...item, unitCost: "0.00", lineCost: "0.00" }),
+    ...row, soldAt: row.soldAt.toISOString(), cancelledAt: row.cancelledAt?.toISOString() ?? null, items: (itemsBySale.get(row.id) ?? []).map(item => user.role === "ADMIN" ? item : { ...item, unitCost: "0.00", lineCost: "0.00" }),
     grossProfit: user.role === "ADMIN" ? (itemsBySale.get(row.id) ?? []).reduce((sum, item) => sum + Number(item.lineTotal) - Number(item.lineCost), 0) : 0,
   }));
   return <main className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6">
