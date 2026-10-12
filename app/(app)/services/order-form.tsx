@@ -11,6 +11,7 @@ type ServiceOption = {
   category: string;
   price: string | null;
   requiresQuote: boolean;
+  imageUrl: string | null;
 };
 
 export function OrderForm({ services }: { services: ServiceOption[] }) {
@@ -19,9 +20,14 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
   const [error, setError] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [agreedPrice, setAgreedPrice] = useState("");
+  const [serviceSearch, setServiceSearch] = useState("");
 
   const selectedService = services.find(
     (service) => service.id === selectedServiceId,
+  );
+
+  const filteredServices = services.filter((service) =>
+    `${service.name} ${service.category}`.toLocaleLowerCase("es-MX").includes(serviceSearch.trim().toLocaleLowerCase("es-MX")),
   );
 
   function handleServiceChange(serviceId: string) {
@@ -35,6 +41,11 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
 
   function handleSubmit(formData: FormData) {
     setError("");
+
+    if (!selectedServiceId) {
+      setError("Busca y selecciona un servicio para continuar.");
+      return;
+    }
 
     startTransition(async () => {
       const result = await createServiceOrder(formData);
@@ -58,21 +69,59 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
           <label htmlFor="serviceId" className="text-sm font-semibold text-gray-700">
             Servicio
           </label>
-          <select
-            id="serviceId"
-            name="serviceId"
-            required
-            value={selectedServiceId}
-            onChange={(event) => handleServiceChange(event.target.value)}
-            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
-          >
-            <option value="">Selecciona un servicio</option>
-            {services.map((service) => (
-              <option key={service.id} value={service.id}>
-                {service.category} — {service.name}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" name="serviceId" value={selectedServiceId} />
+          <div className="space-y-3">
+            <input
+              id="serviceId"
+              type="search"
+              value={serviceSearch}
+              onChange={(event) => setServiceSearch(event.target.value)}
+              placeholder="Buscar por nombre o categoría..."
+              autoComplete="off"
+              aria-label="Buscar servicio por nombre o categoría"
+              aria-controls="service-options"
+              className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition placeholder:text-gray-400 focus:border-amber-400 focus:ring-2 focus:ring-amber-200"
+            />
+            {selectedService && (
+              <div className="flex items-center gap-3 rounded-xl border border-amber-300 bg-amber-50 p-3">
+                {selectedService.imageUrl ? (
+                  <img src={selectedService.imageUrl} alt="" className="h-16 w-16 rounded-lg border border-amber-200 bg-white object-cover" />
+                ) : (
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg border border-amber-200 bg-white text-amber-700"><span className="text-xs font-bold">Sin foto</span></div>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-bold uppercase tracking-wide text-amber-800">Servicio seleccionado</p>
+                  <p className="truncate font-bold text-gray-900">{selectedService.name}</p>
+                  <p className="text-sm text-gray-600">{selectedService.category}</p>
+                </div>
+                <button type="button" onClick={() => { handleServiceChange(""); setServiceSearch(""); }} className="rounded-lg px-2 py-1 text-sm font-semibold text-gray-600 transition hover:bg-white hover:text-gray-900">Cambiar</button>
+              </div>
+            )}
+            <div id="service-options" className="max-h-80 space-y-2 overflow-y-auto rounded-xl border border-gray-200 bg-gray-50 p-2" role="group" aria-label="Resultados de servicios">
+              {filteredServices.length === 0 ? (
+                <p className="px-3 py-5 text-center text-sm text-gray-500">No encontramos servicios con esa búsqueda.</p>
+              ) : (
+                filteredServices.map((service) => {
+                  const isSelected = service.id === selectedServiceId;
+                  return (
+                    <button key={service.id} type="button" onClick={() => handleServiceChange(service.id)} aria-pressed={isSelected} className={`flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 ${isSelected ? "border-amber-400 bg-amber-50 ring-1 ring-amber-200" : "border-transparent bg-white hover:border-gray-300 hover:bg-gray-50"}`}>
+                      {service.imageUrl ? (
+                        <img src={service.imageUrl} alt="" className="h-14 w-14 shrink-0 rounded-lg border border-gray-200 bg-white object-cover" />
+                      ) : (
+                        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-lg border border-gray-200 bg-gray-100 text-[10px] font-semibold text-gray-500">Sin foto</div>
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate font-semibold text-gray-900">{service.name}</span>
+                        <span className="block truncate text-sm text-gray-500">{service.category}</span>
+                        <span className="mt-1 block text-xs font-medium text-gray-600">{service.requiresQuote ? "Requiere cotización" : service.price ? `Precio de referencia: $${Number(service.price).toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN` : "Precio por definir"}</span>
+                      </span>
+                      {isSelected && <span className="text-sm font-bold text-amber-800">Seleccionado</span>}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          </div>
 
           {selectedService?.requiresQuote && (
             <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm leading-5 text-amber-900">
