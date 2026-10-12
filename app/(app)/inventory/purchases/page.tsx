@@ -2,11 +2,11 @@ import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
 import { db } from "@/db/db";
 import { products, purchaseItems, purchases, users } from "@/db/schema";
-import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
+import { requireAdmin } from "@/lib/auth/authorization";
 import { PurchaseManager } from "../purchase-manager";
 
 export default async function PurchasesPage() {
-  await requireEmployeeOrAdmin();
+  await requireAdmin();
   const [productList, purchaseList] = await Promise.all([
     db.select({ id: products.id, name: products.name, sku: products.sku, costPrice: products.costPrice, stockQuantity: products.stockQuantity, active: products.active })
       .from(products).orderBy(products.name),
