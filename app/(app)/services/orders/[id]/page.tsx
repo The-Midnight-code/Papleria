@@ -57,7 +57,9 @@ function DetailItem({
 }) {
   return (
     <div className="space-y-1.5">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</p>
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+        {label}
+      </p>
       <div className="font-semibold leading-6 text-gray-900">{children}</div>
     </div>
   );
@@ -117,18 +119,24 @@ export default async function ServiceOrderDetailPage({
             <p className="text-xs font-bold uppercase tracking-wider text-[#FFD400]">
               Orden {order.orderNumber}
             </p>
-            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">{order.serviceName}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              {order.serviceName}
+            </h1>
             <p className="text-sm text-white/75">{order.customerName}</p>
           </div>
 
-          <span className={`inline-flex w-fit rounded-full border px-3 py-1.5 text-xs font-semibold ${({"PENDING_QUOTE":"border-amber-200 bg-amber-50 text-amber-800","AWAITING_DEPOSIT":"border-orange-200 bg-orange-50 text-orange-800","IN_PROGRESS":"border-blue-200 bg-blue-50 text-blue-800","READY":"border-teal-200 bg-teal-50 text-teal-800","DELIVERED":"border-emerald-200 bg-emerald-50 text-emerald-800","CANCELLED":"border-gray-200 bg-gray-100 text-gray-700"} as Record<string,string>)[order.status] ?? "border-gray-200 bg-gray-100 text-gray-700"}` }>
+          <span
+            className={`inline-flex w-fit rounded-full border px-3 py-1.5 text-xs font-semibold ${({ PENDING_QUOTE: "border-amber-200 bg-amber-50 text-amber-800", AWAITING_DEPOSIT: "border-orange-200 bg-orange-50 text-orange-800", IN_PROGRESS: "border-blue-200 bg-blue-50 text-blue-800", READY: "border-teal-200 bg-teal-50 text-teal-800", DELIVERED: "border-emerald-200 bg-emerald-50 text-emerald-800", CANCELLED: "border-gray-200 bg-gray-100 text-gray-700" } as Record<string, string>)[order.status] ?? "border-gray-200 bg-gray-100 text-gray-700"}`}
+          >
             {statusLabels[order.status] ?? order.status}
           </span>
         </div>
       </header>
 
       <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-        <h2 className="text-lg font-bold tracking-tight text-gray-900">Datos del cliente</h2>
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">
+          Datos del cliente
+        </h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <DetailItem label="Nombre">{order.customerName}</DetailItem>
@@ -139,7 +147,9 @@ export default async function ServiceOrderDetailPage({
       </section>
 
       <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-        <h2 className="text-lg font-bold tracking-tight text-gray-900">Especificaciones del trabajo</h2>
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">
+          Especificaciones del trabajo
+        </h2>
 
         <DetailItem label="Servicio">{order.serviceName}</DetailItem>
 
@@ -157,7 +167,9 @@ export default async function ServiceOrderDetailPage({
       </section>
 
       <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-        <h2 className="text-lg font-bold tracking-tight text-gray-900">Precio y pagos</h2>
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">
+          Precio y pagos
+        </h2>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           <DetailItem label="Precio acordado">
@@ -182,12 +194,20 @@ export default async function ServiceOrderDetailPage({
             <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:flex-row sm:items-center">
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-gray-900">Anticipo inicial</p>
-                  <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">Efectivo</span>
+                  <p className="font-semibold text-gray-900">
+                    Anticipo inicial
+                  </p>
+                  <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-bold text-emerald-800">
+                    Efectivo
+                  </span>
                 </div>
-                <p className="text-sm text-gray-500">Registrado al crear la orden</p>
+                <p className="text-sm text-gray-500">
+                  Registrado al crear la orden
+                </p>
               </div>
-              <p className="text-lg font-bold tabular-nums text-gray-900">{formatMoney(initialDeposit)}</p>
+              <p className="text-lg font-bold tabular-nums text-gray-900">
+                {formatMoney(initialDeposit)}
+              </p>
             </div>
           )}
 
@@ -204,22 +224,29 @@ export default async function ServiceOrderDetailPage({
             >
               <div className="space-y-1.5">
                 <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-semibold text-gray-900">Abono registrado</p>
-                  <span className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${({"CASH":"border-emerald-200 bg-emerald-50 text-emerald-800","CARD":"border-blue-200 bg-blue-50 text-blue-800","TRANSFER":"border-violet-200 bg-violet-50 text-violet-800","OTHER":"border-gray-200 bg-gray-100 text-gray-700"} as Record<string,string>)[payment.paymentMethod] ?? "border-gray-200 bg-gray-100 text-gray-700"}`}>
-                    {paymentMethodLabels[payment.paymentMethod] ?? payment.paymentMethod}
+                  <p className="font-semibold text-gray-900">
+                    Abono registrado
+                  </p>
+                  <span
+                    className={`inline-flex rounded-full border px-2.5 py-1 text-xs font-bold ${({ CASH: "border-emerald-200 bg-emerald-50 text-emerald-800", CARD: "border-blue-200 bg-blue-50 text-blue-800", TRANSFER: "border-violet-200 bg-violet-50 text-violet-800", OTHER: "border-gray-200 bg-gray-100 text-gray-700" } as Record<string, string>)[payment.paymentMethod] ?? "border-gray-200 bg-gray-100 text-gray-700"}`}
+                  >
+                    {paymentMethodLabels[payment.paymentMethod] ??
+                      payment.paymentMethod}
                   </span>
                 </div>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-sm text-gray-500">
                   {formatDateTime(payment.createdAt)}
                 </p>
                 {payment.notes && (
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-sm text-gray-500">
                     {payment.notes}
                   </p>
                 )}
               </div>
 
-              <p className="text-lg font-bold tabular-nums text-gray-900">{formatMoney(payment.amount)}</p>
+              <p className="text-lg font-bold tabular-nums text-gray-900">
+                {formatMoney(payment.amount)}
+              </p>
             </div>
           ))}
         </div>
@@ -230,13 +257,17 @@ export default async function ServiceOrderDetailPage({
         balance > 0 &&
         order.status !== "CANCELLED" && (
           <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-            <h2 className="text-lg font-bold tracking-tight text-gray-900">Registrar abono</h2>
+            <h2 className="text-lg font-bold tracking-tight text-gray-900">
+              Registrar abono
+            </h2>
             <PaymentForm orderId={order.id} balance={balance} />
           </section>
         )}
 
       <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-        <h2 className="text-lg font-bold tracking-tight text-gray-900">Fechas de entrega</h2>
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">
+          Fechas de entrega
+        </h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <DetailItem label="Fecha solicitada">
@@ -250,12 +281,16 @@ export default async function ServiceOrderDetailPage({
       </section>
 
       <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-        <h2 className="text-lg font-bold tracking-tight text-gray-900">Actualizar estado</h2>
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">
+          Actualizar estado
+        </h2>
         <StatusControl orderId={order.id} currentStatus={order.status} />
       </section>
 
       <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
-        <h2 className="text-lg font-bold tracking-tight text-gray-900">Registro de la orden</h2>
+        <h2 className="text-lg font-bold tracking-tight text-gray-900">
+          Registro de la orden
+        </h2>
 
         <div className="grid gap-5 sm:grid-cols-2">
           <DetailItem label="Creada">

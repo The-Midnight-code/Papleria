@@ -51,13 +51,24 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
   return (
     <form action={handleSubmit} className="space-y-5">
       <div className="flex flex-col gap-1 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-        <span className="text-sm font-semibold text-amber-900">Saldo pendiente</span>
-        <span className="text-xl font-bold tabular-nums text-amber-950">${balance.toLocaleString("es-MX", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MXN</span>
+        <span className="text-sm font-semibold text-amber-900">
+          Saldo pendiente
+        </span>
+        <span className="text-xl font-bold tabular-nums text-amber-950">
+          $
+          {balance.toLocaleString("es-MX", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}{" "}
+          MXN
+        </span>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="space-y-1.5">
-          <span className="block text-sm font-medium">Monto del abono</span>
+          <span className="block text-sm font-medium text-gray-600">
+            Monto del abono
+          </span>
           <input
             name="amount"
             type="number"
@@ -71,7 +82,9 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="block text-sm font-medium">Método de pago</span>
+          <span className="block text-sm font-medium text-gray-600">
+            Método de pago
+          </span>
           <select
             name="paymentMethod"
             required
@@ -88,7 +101,9 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
       </div>
 
       <label className="block space-y-1.5">
-        <span className="block text-sm font-medium">Notas (opcional)</span>
+        <span className="block text-sm font-medium text-gray-600">
+          Notas (opcional)
+        </span>
         <textarea
           name="notes"
           maxLength={500}
@@ -99,13 +114,19 @@ export function PaymentForm({ orderId, balance }: PaymentFormProps) {
       </label>
 
       {error && (
-        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
+        <p
+          role="alert"
+          className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800"
+        >
           {error}
         </p>
       )}
 
       {success && (
-        <p role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800">
+        <p
+          role="status"
+          className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-800"
+        >
           {success}
         </p>
       )}
