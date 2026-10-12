@@ -33,7 +33,7 @@ export async function registerCashMovement(formData: FormData) {
       // Comparte el bloqueo con ventas y cierre del mismo día operativo.
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ${businessDate}))`);
       const [operationalDate] = await tx.select({
-        businessDate: sql<string>`to_char((now() AT TIME ZONE 'America/Tijuana')::date, 'YYYY-MM-DD')`,
+        businessDate: sql<string>`to_char((clock_timestamp() AT TIME ZONE 'America/Tijuana')::date, 'YYYY-MM-DD')`,
       });
       if (businessDate !== operationalDate.businessDate) {
         throw new Error("La fecha operativa cambió mientras se procesaba la solicitud. Actualiza la pantalla e inténtalo de nuevo.");
@@ -73,7 +73,7 @@ export async function closeCashDay(formData: FormData) {
       // Espera a que terminen ventas/movimientos y bloquea nuevas operaciones hasta cerrar.
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ${businessDate}))`);
       const [operationalDate] = await tx.select({
-        businessDate: sql<string>`to_char((now() AT TIME ZONE 'America/Tijuana')::date, 'YYYY-MM-DD')`,
+        businessDate: sql<string>`to_char((clock_timestamp() AT TIME ZONE 'America/Tijuana')::date, 'YYYY-MM-DD')`,
       });
       if (businessDate !== operationalDate.businessDate) {
         throw new Error("La fecha operativa cambió mientras se procesaba la solicitud. Actualiza la pantalla e inténtalo de nuevo.");
