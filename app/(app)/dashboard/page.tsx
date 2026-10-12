@@ -50,6 +50,20 @@ export default async function DashboardPage() {
           </div>
         </Link>
 
+        {/* Inventario */}
+        <Link
+          href="/inventory"
+          className="group rounded-2xl bg-white p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#53B0C9] text-2xl">📦</div>
+            <span className="text-lg text-[#176B7A]/40 transition group-hover:translate-x-1 group-hover:text-[#176B7A]">→</span>
+          </div>
+          <h2 className="mt-5 text-lg font-bold text-gray-900">Inventario</h2>
+          <p className="mt-2 text-sm leading-6 text-gray-500">Consulta productos físicos, precios y existencias disponibles.</p>
+          <div className="mt-5 text-sm font-semibold text-[#176B7A]">Ver inventario</div>
+        </Link>
+
         {/* Órdenes de servicio */}
         <Link
           href="/services/orders"
