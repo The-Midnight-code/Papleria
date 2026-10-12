@@ -102,6 +102,8 @@ export async function updateProduct(productId: string, formData: FormData) {
         id: products.id,
         name: products.name,
         sku: products.sku,
+        costPrice: products.costPrice,
+        salePrice: products.salePrice,
       });
 
       await tx.insert(activityLogs).values({
