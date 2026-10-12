@@ -21,7 +21,7 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
   const [pending, startTransition] = useTransition();
   const matches = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("es-MX");
-    return products.filter(p => (!q || [p.name, p.sku, p.category].some(v => v.toLocaleLowerCase("es-MX").includes(q)))).slice(0, 30);
+    return products.filter(p => !q || p.name.toLocaleLowerCase("es-MX").includes(q) || p.sku.toLocaleLowerCase("es-MX").includes(q) || p.category.toLocaleLowerCase("es-MX").includes(q)).slice(0, 30);
   }, [products, query]);
   const lines = cart.map(line => ({ ...line, product: products.find(p => p.id === line.productId)! })).filter(line => line.product);
   const subtotal = lines.reduce((sum, line) => sum + Math.round(Number(line.product.salePrice) * 100) * line.quantity / 100, 0);
