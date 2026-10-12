@@ -17,6 +17,7 @@ export default async function NewServiceOrderPage() {
       category: services.category,
       price: services.price,
       requiresQuote: services.requiresQuote,
+      imageMimeType: services.imageMimeType,
     })
     .from(services)
     .where(eq(services.active, true))
@@ -55,7 +56,7 @@ export default async function NewServiceOrderPage() {
           </Link>
         </section>
       ) : (
-        <OrderForm services={availableServices} />
+        <OrderForm services={availableServices.map(({ imageMimeType, ...service }) => ({ ...service, imageUrl: imageMimeType ? `/api/services/${service.id}/image` : null }))} />
       )}
     </main>
   );
