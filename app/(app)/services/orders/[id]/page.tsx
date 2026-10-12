@@ -37,7 +37,20 @@ function formatDate(value: string | null) {
   if (!value) return "Sin fecha";
 
   const [, month, day] = value.slice(0, 10).split("-");
-  const monthNames = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const monthNames = [
+    "enero",
+    "febrero",
+    "marzo",
+    "abril",
+    "mayo",
+    "junio",
+    "julio",
+    "agosto",
+    "septiembre",
+    "octubre",
+    "noviembre",
+    "diciembre",
+  ];
   return `${Number(day)}/${monthNames[Number(month) - 1]}`;
 }
 
@@ -170,29 +183,50 @@ export default async function ServiceOrderDetailPage({
       <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-lg font-bold tracking-tight text-gray-900">Resumen de pagos</h2>
-            <p className="mt-1 text-sm text-gray-500">Consulta el importe acordado, los abonos y el saldo restante.</p>
+            <h2 className="text-lg font-bold tracking-tight text-gray-900">
+              Resumen de pagos
+            </h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Consulta el importe acordado, los abonos y el saldo restante.
+            </p>
           </div>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><DetailItem label="Precio acordado">
-            {formatMoney(order.agreedPrice)}
-          </DetailItem></div>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <DetailItem label="Precio acordado">
+              {formatMoney(order.agreedPrice)}
+            </DetailItem>
+          </div>
 
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><DetailItem label="Anticipo inicial">
-            {formatMoney(order.depositAmount)}
-          </DetailItem></div>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <DetailItem label="Anticipo inicial">
+              {formatMoney(order.depositAmount)}
+            </DetailItem>
+          </div>
 
-          <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4"><DetailItem label="Total pagado">{formatMoney(totalPaid)}</DetailItem></div>
+          <div className="rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+            <DetailItem label="Total pagado">
+              {formatMoney(totalPaid)}
+            </DetailItem>
+          </div>
 
-          <div className={`rounded-xl border p-4 ${balance !== null && balance > 0 ? "border-amber-200 bg-amber-50/80" : "border-teal-100 bg-teal-50/70"}`}><DetailItem label="Saldo pendiente">
-            {formatMoney(balance)}
-          </DetailItem></div>
+          <div
+            className={`rounded-xl border p-4 ${balance !== null && balance > 0 ? "border-amber-200 bg-amber-50/80" : "border-teal-100 bg-teal-50/70"}`}
+          >
+            <DetailItem label="Saldo pendiente">
+              {formatMoney(balance)}
+            </DetailItem>
+          </div>
         </div>
 
         <div className="space-y-3 border-t border-gray-100 pt-5">
-          <div><h3 className="font-semibold text-gray-900">Historial de pagos</h3><p className="mt-1 text-sm text-gray-500">Los abonos aparecen del más reciente al más antiguo.</p></div>
+          <div>
+            <h3 className="font-semibold text-gray-900">Historial de pagos</h3>
+            <p className="mt-1 text-sm text-gray-500">
+              Los abonos aparecen del más reciente al más antiguo.
+            </p>
+          </div>
 
           {initialDeposit > 0 && (
             <div className="flex flex-col justify-between gap-2 rounded-xl border border-gray-100 bg-gray-50 p-4 sm:flex-row sm:items-center">
@@ -216,7 +250,7 @@ export default async function ServiceOrderDetailPage({
           )}
 
           {payments.length === 0 && initialDeposit === 0 && (
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-gray-400">
               Todavía no hay pagos registrados.
             </p>
           )}
@@ -270,18 +304,34 @@ export default async function ServiceOrderDetailPage({
 
       <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-5 shadow-md sm:p-6">
         <div>
-          <h2 className="text-lg font-bold tracking-tight text-gray-900">Fechas de entrega</h2>
-          <p className="mt-1 text-sm text-gray-500">Ten a la vista la fecha solicitada y el compromiso de entrega.</p>
+          <h2 className="text-lg font-bold tracking-tight text-gray-900">
+            Fechas de entrega
+          </h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Ten a la vista la fecha solicitada y el compromiso de entrega.
+          </p>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4"><DetailItem label="Fecha solicitada">
-            {formatDate(order.requestedDeliveryDate)}
-          </DetailItem></div>
+          <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
+            <DetailItem label="Fecha solicitada">
+              {formatDate(order.requestedDeliveryDate)}
+            </DetailItem>
+          </div>
 
-          <div className={`rounded-xl border p-4 ${order.promisedDeliveryDate ? "border-[#FFD400]/50 bg-amber-50/60" : "border-amber-200 bg-amber-50"}`}><DetailItem label="Fecha prometida">
-            {order.promisedDeliveryDate ? formatDate(order.promisedDeliveryDate) : <span className="font-semibold text-amber-800">Sin fecha · pendiente de definir</span>}
-          </DetailItem></div>
+          <div
+            className={`rounded-xl border p-4 ${order.promisedDeliveryDate ? "border-[#FFD400]/50 bg-amber-50/60" : "border-amber-200 bg-amber-50"}`}
+          >
+            <DetailItem label="Fecha prometida">
+              {order.promisedDeliveryDate ? (
+                formatDate(order.promisedDeliveryDate)
+              ) : (
+                <span className="font-semibold text-amber-800">
+                  Sin fecha · pendiente de definir
+                </span>
+              )}
+            </DetailItem>
+          </div>
         </div>
       </section>
 
