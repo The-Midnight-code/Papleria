@@ -65,17 +65,29 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
     <>
       <section className="grid gap-4 sm:grid-cols-3">
         <article className="rounded-2xl border border-white/60 bg-white/95 p-5 shadow-sm transition hover:shadow-md">
-          <p className="text-sm font-semibold text-gray-500">Órdenes activas</p>
-          <p className="mt-2 text-2xl font-bold text-gray-900">{orders.length}</p>
-        </article>
-        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition hover:shadow-xl">
-          <p className="text-sm font-semibold text-[#176B7A]">Trabajos activos</p>
+          <p className="text-sm font-semibold text-[#176B7A]">
+            Órdenes activas
+          </p>
           <p className="mt-2 text-2xl font-bold text-gray-900">
-            {orders.filter((order) => !["DELIVERED", "CANCELLED"].includes(order.status)).length}
+            {orders.length}
           </p>
         </article>
         <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition hover:shadow-xl">
-          <p className="text-sm font-semibold text-[#176B7A]">Listos para entregar</p>
+          <p className="text-sm font-semibold text-[#176B7A]">
+            Trabajos activos
+          </p>
+          <p className="mt-2 text-2xl font-bold text-gray-900">
+            {
+              orders.filter(
+                (order) => !["DELIVERED", "CANCELLED"].includes(order.status),
+              ).length
+            }
+          </p>
+        </article>
+        <article className="rounded-2xl border border-gray-100 bg-white p-5 shadow-lg transition hover:shadow-xl">
+          <p className="text-sm font-semibold text-[#176B7A]">
+            Listos para entregar
+          </p>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {orders.filter((order) => order.status === "READY").length}
           </p>
@@ -84,12 +96,24 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
 
       {orders.length > 0 && (
         <section className="space-y-3">
-          <label htmlFor="customer-search" className="block text-sm font-semibold text-white">
+          <label
+            htmlFor="customer-search"
+            className="block text-sm font-semibold text-white"
+          >
             Buscar por nombre del cliente
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-5 w-5">
+            <span
+              className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400"
+              aria-hidden="true"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-5 w-5"
+              >
                 <circle cx="11" cy="11" r="7" />
                 <path d="m20 20-4-4" />
               </svg>
@@ -104,23 +128,36 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
             />
           </div>
           <p className="text-xs text-gray-300">
-            {search.trim() ? `${filteredOrders.length} de ${orders.length} órdenes` : "Busca entre las órdenes activas por nombre."}
+            {search.trim()
+              ? `${filteredOrders.length} de ${orders.length} órdenes`
+              : "Busca entre las órdenes activas por nombre."}
           </p>
         </section>
       )}
 
       {orders.length === 0 ? (
         <section className="rounded-2xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900">Todavía no hay órdenes</h2>
+          <h2 className="text-lg font-bold text-gray-900">
+            Todavía no hay órdenes
+          </h2>
           <p className="mt-2 text-sm leading-6 text-gray-500">
-            Registra el primer trabajo para comenzar a controlar sus avances y entregas.
+            Registra el primer trabajo para comenzar a controlar sus avances y
+            entregas.
           </p>
         </section>
       ) : filteredOrders.length === 0 ? (
         <section className="rounded-2xl border border-gray-200 bg-white px-5 py-12 text-center shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900">No encontramos coincidencias</h2>
-          <p className="mt-2 text-sm text-gray-500">Prueba con otro nombre de cliente.</p>
-          <button type="button" onClick={() => setSearch("")} className="mt-4 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200">
+          <h2 className="text-lg font-bold text-gray-900">
+            No encontramos coincidencias
+          </h2>
+          <p className="mt-2 text-sm text-gray-500">
+            Prueba con otro nombre de cliente.
+          </p>
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            className="mt-4 rounded-lg bg-gray-100 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-200"
+          >
             Limpiar búsqueda
           </button>
         </section>
@@ -128,9 +165,14 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
         <section className="space-y-3">
           {filteredOrders.map((order) => {
             const totalPaid = Math.round(order.totalPaid * 100) / 100;
-            const balance = order.agreedPrice === null
-              ? null
-              : Math.max(0, Math.round((Number(order.agreedPrice) - totalPaid) * 100) / 100);
+            const balance =
+              order.agreedPrice === null
+                ? null
+                : Math.max(
+                    0,
+                    Math.round((Number(order.agreedPrice) - totalPaid) * 100) /
+                      100,
+                  );
 
             return (
               <Link
@@ -140,22 +182,64 @@ export default function ServiceOrdersList({ orders }: { orders: Order[] }) {
               >
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                   <div className="min-w-0 space-y-1">
-                    <p className="text-xs font-bold uppercase tracking-wider text-[#176B7A]">{order.orderNumber}</p>
-                    <h2 className="text-lg font-bold text-gray-900">{order.serviceName}</h2>
+                    <p className="text-xs font-bold uppercase tracking-wider text-[#176B7A]">
+                      {order.orderNumber}
+                    </p>
+                    <h2 className="text-lg font-bold text-gray-900">
+                      {order.serviceName}
+                    </h2>
                     <p className="text-sm text-gray-600">
-                      {order.customerName}{order.customerPhone ? ` · ${order.customerPhone}` : ""}
+                      {order.customerName}
+                      {order.customerPhone ? ` · ${order.customerPhone}` : ""}
                     </p>
                   </div>
-                  <span className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[order.status] ?? "border-border bg-muted text-muted-foreground"}`}>
+                  <span
+                    className={`inline-flex w-fit rounded-full border px-3 py-1 text-xs font-medium ${statusStyles[order.status] ?? "border-border bg-muted text-muted-foreground"}`}
+                  >
                     {statusLabels[order.status] ?? order.status}
                   </span>
                 </div>
                 <div className="mt-4 grid gap-4 border-t border-gray-100 pt-4 sm:grid-cols-2 lg:grid-cols-4">
-                  <div><p className="text-xs font-medium text-gray-500">Precio acordado</p><p className="mt-1 font-semibold text-gray-900">{formatMoney(order.agreedPrice)}</p></div>
-                  <div><p className="text-xs font-medium text-gray-600">Anticipo inicial</p><p className="mt-1 font-semibold text-gray-900">{formatMoney(order.depositAmount)}</p></div>
-                  <div><p className="text-xs font-medium text-gray-600">Total pagado</p><p className="mt-1 font-semibold text-gray-900">{formatMoney(totalPaid)}</p></div>
-                  <div><p className="text-xs font-medium text-gray-600">Saldo pendiente</p><p className="mt-1 font-semibold text-gray-900">{formatMoney(balance)}</p></div>
-                  <div className="sm:col-span-2 lg:col-span-4"><p className="text-xs font-medium text-gray-600">Fecha prometida</p><p className="mt-1 font-semibold text-gray-900">{formatDate(order.promisedDeliveryDate)}</p></div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-500">
+                      Precio acordado
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-900">
+                      {formatMoney(order.agreedPrice)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-600">
+                      Anticipo inicial
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-900">
+                      {formatMoney(order.depositAmount)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-600">
+                      Total pagado
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-900">
+                      {formatMoney(totalPaid)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-gray-600">
+                      Saldo pendiente
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-900">
+                      {formatMoney(balance)}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2 lg:col-span-4">
+                    <p className="text-xs font-medium text-gray-600">
+                      Fecha prometida
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-900">
+                      {formatDate(order.promisedDeliveryDate)}
+                    </p>
+                  </div>
                 </div>
               </Link>
             );
