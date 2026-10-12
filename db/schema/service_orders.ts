@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   numeric,
   pgEnum,
@@ -8,10 +9,16 @@ import {
   uuid,
   varchar,
   date,
+  pgSequence,
 } from "drizzle-orm/pg-core";
 
 import { services } from "./services";
 import { users } from "./users";
+
+export const serviceOrderNumberSeq = pgSequence("service_order_number_seq", {
+  startWith: 1,
+  increment: 1,
+});
 
 export const serviceOrderStatusEnum = pgEnum("service_order_status", [
   "PENDING_QUOTE",
@@ -27,7 +34,11 @@ export const serviceOrders = pgTable(
   {
     id: uuid("id").defaultRandom().primaryKey(),
 
-    orderNumber: varchar("order_number", { length: 20 }).notNull(),
+    orderNumber: varchar("order_number", { length: 20 })
+      .notNull()
+      .default(
+        sql`'SRV-' || lpad(nextval('service_order_number_seq')::text, 4, '0')`,
+      ),
 
     serviceId: uuid("service_id").references(() => services.id, {
       onDelete: "set null",

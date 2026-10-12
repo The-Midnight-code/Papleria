@@ -22,6 +22,20 @@
       "when": 1791578680727,
       "tag": "0002_wild_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791580592032,
+      "tag": "0003_tranquil_jigsaw",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1791581482609,
+      "tag": "0004_wet_gargoyle",
+      "breakpoints": true
     }
   ]
 }

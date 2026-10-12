@@ -50,6 +50,63 @@ export default async function DashboardPage() {
           </div>
         </Link>
 
+        {/* Órdenes de servicio */}
+        <Link
+          href="/services/orders"
+          className="group rounded-2xl bg-white p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
+        >
+          <div className="flex items-start justify-between">
+            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#176B7A] text-2xl">
+              🛠️
+            </div>
+
+            <span className="text-lg text-[#176B7A]/40 transition group-hover:translate-x-1 group-hover:text-[#176B7A]">
+              →
+            </span>
+          </div>
+
+          <h2 className="mt-5 text-lg font-bold text-gray-900">
+            Órdenes de servicio
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-gray-500">
+            Registra trabajos, administra abonos y consulta saldos pendientes y
+            fechas de entrega.
+          </p>
+
+          <div className="mt-5 text-sm font-semibold text-[#176B7A]">
+            Ver órdenes
+          </div>
+        </Link>
+        {user.role === "ADMIN" && (
+          <Link
+            href="/services"
+            className="group rounded-2xl bg-white p-6 shadow-lg transition hover:-translate-y-1 hover:shadow-xl"
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#FFD400] text-2xl">
+                🗂️
+              </div>
+              <span className="text-lg text-[#176B7A]/40 transition group-hover:translate-x-1 group-hover:text-[#176B7A]">
+                →
+              </span>
+            </div>
+
+            <h2 className="mt-5 text-lg font-bold text-gray-900">
+              Catálogo de servicios
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-gray-500">
+              Registra y administra los servicios, precios y tiempos de
+              producción.
+            </p>
+
+            <div className="mt-5 text-sm font-semibold text-[#176B7A]">
+              Administrar servicios
+            </div>
+          </Link>
+        )}
+
         {user.role === "ADMIN" && (
           <>
             {/* Usuarios */}

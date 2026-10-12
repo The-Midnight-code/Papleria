@@ -9,3 +9,4 @@ export * from "./reminders";
 export * from "./user_reminders";
 export * from "./services";
 export * from "./service_orders";
+export * from "./service_order_payments";
