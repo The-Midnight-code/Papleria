@@ -117,7 +117,17 @@ export default function PublicServicesCatalog({
 
   return (
     <div className="space-y-14 sm:space-y-16">
-      <section\n        aria-labelledby="featured-services-title"\n        onMouseEnter={() => setIsCarouselPaused(true)}\n        onMouseLeave={() => setIsCarouselPaused(false)}\n        onFocusCapture={() => setIsCarouselPaused(true)}\n        onBlurCapture={(event) => {\n          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {\n            setIsCarouselPaused(false);\n          }\n        }}\n      >
+      <section
+        aria-labelledby="featured-services-title"
+        onMouseEnter={() => setIsCarouselPaused(true)}
+        onMouseLeave={() => setIsCarouselPaused(false)}
+        onFocusCapture={() => setIsCarouselPaused(true)}
+        onBlurCapture={(event) => {
+          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+            setIsCarouselPaused(false);
+          }
+        }}
+      >
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">
@@ -133,7 +143,7 @@ export default function PublicServicesCatalog({
               Descubre algunas de las opciones de nuestro catálogo.
             </p>
           </div>
-          {services.length > featuredCount && (
+          {services.length > 1 && (
             <div className="hidden shrink-0 gap-2 sm:flex">
               <button
                 type="button"
