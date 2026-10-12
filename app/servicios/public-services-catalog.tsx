@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 
 type PublicService = {
   id: string;
@@ -86,21 +87,33 @@ export default function PublicServicesCatalog({
 }: {
   services: PublicService[];
 }) {
-  const [carouselIndex, setCarouselIndex] = useState(0);
   const [isCarouselPaused, setIsCarouselPaused] = useState(false);
-  const featuredCount = Math.min(4, services.length);
-  const maxIndex = Math.max(0, services.length - featuredCount);
-  const featured = services.slice(carouselIndex, carouselIndex + featuredCount);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [snapCount, setSnapCount] = useState(0);
+  const [emblaRef, emblaApi] = useEmblaCarousel({ align: "start", loop: true, slidesToScroll: 1 });
+
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setSelectedIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
 
   useEffect(() => {
-    if (isCarouselPaused || maxIndex === 0) return;
+    if (!emblaApi) return;
+    onSelect();
+    setSnapCount(emblaApi.scrollSnapList().length);
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
+  }, [emblaApi, onSelect]);
 
-    const interval = window.setInterval(() => {
-      setCarouselIndex((index) => (index >= maxIndex ? 0 : index + 1));
-    }, 5000);
-
+  useEffect(() => {
+    if (isCarouselPaused || !emblaApi || services.length < 2) return;
+    const interval = window.setInterval(() => emblaApi.scrollNext(), 5000);
     return () => window.clearInterval(interval);
-  }, [isCarouselPaused, maxIndex]);
+  }, [emblaApi, isCarouselPaused, services.length]);
 
   return (
     <div className="space-y-14 sm:space-y-16">
@@ -125,10 +138,7 @@ export default function PublicServicesCatalog({
               <button
                 type="button"
                 aria-label="Ver servicios anteriores"
-                onClick={() =>
-                  setCarouselIndex((index) => Math.max(0, index - 1))
-                }
-                disabled={carouselIndex === 0}
+                onClick={() => emblaApi?.scrollPrev()}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#176B7A] hover:text-[#176B7A] disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <svg
@@ -145,10 +155,7 @@ export default function PublicServicesCatalog({
               <button
                 type="button"
                 aria-label="Ver siguientes servicios"
-                onClick={() =>
-                  setCarouselIndex((index) => Math.min(maxIndex, index + 1))
-                }
-                disabled={carouselIndex === maxIndex}
+                onClick={() => emblaApi?.scrollNext()}
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#176B7A] hover:text-[#176B7A] disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <svg
@@ -166,81 +173,40 @@ export default function PublicServicesCatalog({
           )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((service) => (
-            <article
-              key={service.id}
-              className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
-            >
-              <ServiceImage service={service} />
-              <div className="flex flex-1 flex-col p-4">
-                <p className="w-fit rounded-full bg-[#E8F4F3] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#176B7A]">
-                  {service.category}
-                </p>
-                <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">
-                  {service.name}
-                </h3>
-                <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">
-                  {service.description ||
-                    "Consulta los detalles de este servicio en la papelería."}
-                </p>
-                <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
-                  <Price service={service} />
-                  <span
-                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-[#123D46]"
-                    aria-hidden="true"
-                  >
-                    <svg
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      className="h-4 w-4"
-                    >
-                      <path d="M5 12h14m-6-6 6 6-6 6" />
-                    </svg>
-                  </span>
-                </div>
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="-ml-4 flex touch-pan-y">
+            {services.map((service) => (
+              <div key={service.id} className="min-w-0 flex-[0_0_100%] pl-4 sm:flex-[0_0_50%] lg:flex-[0_0_25%]">
+                <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                  <ServiceImage service={service} />
+                  <div className="flex flex-1 flex-col p-4">
+                    <p className="w-fit rounded-full bg-[#E8F4F3] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#176B7A]">{service.category}</p>
+                    <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">{service.name}</h3>
+                    <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{service.description || "Consulta los detalles de este servicio en la papelería."}</p>
+                    <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
+                      <Price service={service} />
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-50 text-[#123D46]" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>
+                      </span>
+                    </div>
+                  </div>
+                </article>
               </div>
-            </article>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {services.length > featuredCount && (
+        {snapCount > 1 && (
           <div className="mt-5 flex items-center justify-center gap-2">
-            {Array.from({ length: maxIndex + 1 }).map((_, index) => (
-              <button
-                key={index}
-                type="button"
-                aria-label={`Mostrar selección ${index + 1} de servicios`}
-                onClick={() => setCarouselIndex(index)}
-                className={`h-2.5 rounded-full transition-all ${carouselIndex === index ? "w-7 bg-[#FFD400]" : "w-2.5 bg-slate-300 hover:bg-slate-400"}`}
-              />
+            {Array.from({ length: snapCount }).map((_, index) => (
+              <button key={index} type="button" aria-label={"Mostrar selección " + (index + 1) + " de servicios"} aria-current={selectedIndex === index ? "true" : undefined} onClick={() => emblaApi?.scrollTo(index)} className={"h-2.5 rounded-full transition-all " + (selectedIndex === index ? "w-7 bg-[#FFD400]" : "w-2.5 bg-slate-300 hover:bg-slate-400")} />
             ))}
           </div>
         )}
-        {services.length > featuredCount && (
+        {services.length > 1 && (
           <div className="mt-4 flex justify-center gap-3 sm:hidden">
-            <button
-              type="button"
-              onClick={() =>
-                setCarouselIndex((index) => Math.max(0, index - 1))
-              }
-              disabled={carouselIndex === 0}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40"
-            >
-              Anterior
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                setCarouselIndex((index) => Math.min(maxIndex, index + 1))
-              }
-              disabled={carouselIndex === maxIndex}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:opacity-40"
-            >
-              Siguiente
-            </button>
+            <button type="button" onClick={() => emblaApi?.scrollPrev()} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Anterior</button>
+            <button type="button" onClick={() => emblaApi?.scrollNext()} className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700">Siguiente</button>
           </div>
         )}
       </section>
