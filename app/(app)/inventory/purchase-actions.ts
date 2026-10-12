@@ -30,7 +30,7 @@ export async function registerPurchase(formData: FormData) {
         if (!item || typeof item !== "object") throw new Error();
         const row = item as Record<string, unknown>;
         if (typeof row.productId !== "string" || !uuidPattern.test(row.productId)) throw new Error();
-        if (!Number.isSafeInteger(row.quantity) || Number(row.quantity) < 1 || Number(row.quantity) > 2147483647) throw new Error();
+        if (typeof row.quantity !== "number" || !Number.isSafeInteger(row.quantity) || row.quantity < 1 || row.quantity > 2147483647) throw new Error();
         if (typeof row.unitCost !== "string" || !Number.isFinite(parseMoney(row.unitCost))) throw new Error();
         return { productId: row.productId, quantity: Number(row.quantity), unitCost: parseMoney(row.unitCost) };
       });
@@ -39,7 +39,7 @@ export async function registerPurchase(formData: FormData) {
     }
     if (new Set(submitted.map((item) => item.productId)).size !== submitted.length) return { error: "Cada producto debe aparecer una sola vez en la compra." };
     const totalAmount = submitted.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
-    if (!Number.isFinite(totalAmount) || totalAmount > 999999999999.99) return { error: "El total de la compra supera el límite permitido." };
+    if (!Number.isFinite(totalAmount) || totalAmount > 9999999999.99 || submitted.some((item) => item.quantity * item.unitCost > 9999999999.99)) return { error: "El total de la compra supera el límite permitido." };
 
     await db.transaction(async (tx) => {
       const lockedProducts = [];
