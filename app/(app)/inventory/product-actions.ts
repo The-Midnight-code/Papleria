@@ -58,6 +58,7 @@ export async function createProduct(formData: FormData) {
       const [product] = await tx.insert(products).values({
         ...productValues,
         stockQuantity,
+        active: user.role === "ADMIN",
         createdBy: user.id,
       }).returning({ id: products.id, name: products.name, sku: products.sku });
 
@@ -143,6 +144,9 @@ export async function setProductActive(productId: string, active: boolean) {
     const result = await db.transaction(async (tx) => {
       const [current] = await tx.select().from(products).where(eq(products.id, productId)).limit(1);
       if (!current) throw new Error("El producto ya no existe.");
+      if (active && Number(current.salePrice) <= 0) {
+        throw new Error("Un administrador debe asignar un precio de venta mayor que cero antes de activar este producto.");
+      }
       if (current.active === active) return { id: current.id, active: current.active, sku: current.sku };
 
       const [updated] = await tx.update(products).set({ active, updatedAt: new Date() })
