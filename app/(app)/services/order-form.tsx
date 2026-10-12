@@ -33,6 +33,8 @@ export function OrderForm({ services }: { services: ServiceOption[] }) {
 
   function handleServiceChange(serviceId: string) {
     setSelectedServiceId(serviceId);
+    setIsSearchingService(false);
+    setServiceSearch("");
     const service = services.find((item) => item.id === serviceId);
 
     setAgreedPrice(
