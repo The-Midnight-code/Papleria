@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type PublicService = {
   id: string;
@@ -87,13 +87,24 @@ export default function PublicServicesCatalog({
   services: PublicService[];
 }) {
   const [carouselIndex, setCarouselIndex] = useState(0);
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
   const featuredCount = Math.min(4, services.length);
   const maxIndex = Math.max(0, services.length - featuredCount);
   const featured = services.slice(carouselIndex, carouselIndex + featuredCount);
 
+  useEffect(() => {
+    if (isCarouselPaused || maxIndex === 0) return;
+
+    const interval = window.setInterval(() => {
+      setCarouselIndex((index) => (index >= maxIndex ? 0 : index + 1));
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, [isCarouselPaused, maxIndex]);
+
   return (
     <div className="space-y-14 sm:space-y-16">
-      <section aria-labelledby="featured-services-title">
+      <section\n        aria-labelledby="featured-services-title"\n        onMouseEnter={() => setIsCarouselPaused(true)}\n        onMouseLeave={() => setIsCarouselPaused(false)}\n        onFocusCapture={() => setIsCarouselPaused(true)}\n        onBlurCapture={(event) => {\n          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {\n            setIsCarouselPaused(false);\n          }\n        }}\n      >
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">
