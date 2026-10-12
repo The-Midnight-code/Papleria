@@ -16,7 +16,7 @@ export default async function PointOfSalePage() {
     let promoPrice = Number(product.salePrice);
     let promotionName: string | null = null;
     for (const promotion of activePromotions.filter(p => p.productId === null || p.productId === product.id)) {
-      const reduction = promotion.discountType === "percent" ? promoPrice * Number(promotion.discountValue) / 100 : Number(promotion.discountValue);
+      const reduction = promotion.discountType === "percent" ? Number(product.salePrice) * Number(promotion.discountValue) / 100 : Number(promotion.discountValue);
       const candidate = Math.max(0, Number(product.salePrice) - reduction);
       if (candidate < promoPrice) { promoPrice = candidate; promotionName = promotion.name; }
     }
