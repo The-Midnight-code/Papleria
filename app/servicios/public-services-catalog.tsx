@@ -29,7 +29,7 @@ function ServiceImage({
 }) {
   return (
     <div
-      className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-white to-amber-50 ${compact ? "h-32 w-32 shrink-0 rounded-xl p-2" : "h-48 w-full p-4"}`}
+      className={`relative flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-100 via-white to-amber-50 ${compact ? "h-32 w-32 shrink-0 rounded-xl p-2" : "aspect-square w-full"}`}
     >
       {service.imageMimeType ? (
         <Image
@@ -38,7 +38,7 @@ function ServiceImage({
           width={800}
           height={450}
           unoptimized
-          className="h-full w-full object-contain"
+          className={`h-full w-full ${compact ? "object-contain" : "object-cover"}`}
         />
       ) : (
         <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-white bg-white/90 text-[#176B7A] shadow-sm">
@@ -167,7 +167,7 @@ export default function PublicServicesCatalog({
                 type="button"
                 aria-label="Ver siguientes servicios"
                 onClick={() => emblaApi?.scrollNext()}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-sm transition hover:border-[#176B7A] hover:text-[#176B7A] disabled:cursor-not-allowed disabled:opacity-35"
+                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/30 bg-white/10 text-white shadow-sm backdrop-blur transition hover:border-[#FFD400] hover:bg-white/20 hover:text-[#FFD400] disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -188,11 +188,10 @@ export default function PublicServicesCatalog({
           <div className="-ml-4 flex touch-pan-y">
             {services.map((service) => (
               <div key={service.id} className="min-w-0 flex-[0_0_100%] pl-4 sm:flex-[0_0_50%] lg:flex-[0_0_25%]">
-                <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg">
+                <article className="group flex h-full flex-col overflow-hidden rounded-xl border border-white/70 bg-white shadow-md transition duration-200 hover:-translate-y-1 hover:shadow-xl">
                   <ServiceImage service={service} />
                   <div className="flex flex-1 flex-col p-4">
-                    <p className="w-fit rounded-full bg-[#E8F4F3] px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-[#176B7A]">{service.category}</p>
-                    <h3 className="mt-3 text-base font-bold leading-snug text-slate-900">{service.name}</h3>
+                    <h3 className="text-base font-extrabold leading-snug text-slate-900 sm:text-lg">{service.name}</h3>
                     <p className="mt-2 line-clamp-2 min-h-10 text-sm leading-5 text-slate-600">{service.description || "Consulta los detalles de este servicio en la papelería."}</p>
                     <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-4">
                       <Price service={service} />
