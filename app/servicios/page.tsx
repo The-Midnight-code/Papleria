@@ -21,8 +21,31 @@ export default async function PublicServicesPage() {
     .orderBy(services.category, services.name);
 
   return (
-    <main className="min-h-screen bg-slate-50 text-slate-900">
-      <section className="relative isolate overflow-hidden bg-[#123D46]">
+    <main className="relative min-h-screen overflow-hidden bg-[#7F27A8] text-slate-900">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-[#FFD400] opacity-70" />
+        <div className="absolute -left-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-[#53B0C9] opacity-60" />
+        <div className="absolute right-1/4 top-24 h-40 w-40 rounded-full bg-[#F76400] opacity-40" />
+        <div className="absolute bottom-24 left-1/4 h-32 w-32 rounded-full bg-[#E885CF] opacity-45" />
+        <div
+          className="absolute left-[8%] top-[42%] h-0 w-0 opacity-40"
+          style={{
+            borderLeft: "70px solid transparent",
+            borderRight: "70px solid transparent",
+            borderBottom: "120px solid #FFD400",
+            transform: "rotate(18deg)",
+          }}
+        />
+        <div className="absolute right-[8%] top-[55%] h-40 w-40 opacity-35">
+          <div className="absolute inset-0 rounded-full border-[8px] border-[#E885CF]" />
+          <div className="absolute inset-5 rounded-full border-[8px] border-[#E885CF]" />
+          <div className="absolute inset-10 rounded-full border-[8px] border-[#E885CF]" />
+          <div className="absolute inset-[60px] rounded-full border-[8px] border-[#E885CF]" />
+        </div>
+        <div className="absolute bottom-[18%] right-[28%] h-24 w-24 rotate-45 bg-[#53B0C9] opacity-25" />
+        <div className="absolute left-[32%] top-[18%] h-2 w-32 -rotate-45 rounded-full bg-[#F76400] opacity-30" />
+      </div>
+      <section className="relative z-10 isolate overflow-hidden bg-[#123D46]">
         <div aria-hidden="true" className="absolute inset-0 -z-10 opacity-20">
           <div className="absolute -right-20 -top-36 h-72 w-72 rounded-full bg-[#FFD400] blur-3xl" />
           <div className="absolute -bottom-32 left-[-4rem] h-64 w-64 rounded-full bg-[#4BB5B2] blur-3xl" />
@@ -49,7 +72,7 @@ export default async function PublicServicesPage() {
         <div aria-hidden="true" className="h-1 bg-[#FFD400]" />
       </section>
 
-      <div className="mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
+      <div className="relative z-10 mx-auto max-w-6xl px-5 py-8 sm:px-8 sm:py-12">
         {publishedServices.length === 0 ? (
           <section className="mx-auto max-w-xl rounded-3xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm sm:px-10">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-50 text-[#176B7A]">
