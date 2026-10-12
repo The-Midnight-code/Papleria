@@ -1,9 +1,9 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
-import { activityLogs, inventoryMovements, products, saleItems, sales, users } from "@/db/schema";
+import { activityLogs, cashClosures, inventoryMovements, products, saleItems, sales } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
 
 export async function cancelSale(saleId: string, reasonInput: string) {
@@ -20,6 +20,19 @@ export async function cancelSale(saleId: string, reasonInput: string) {
       const [sale] = await tx.select().from(sales).where(eq(sales.id, saleId)).for("update").limit(1);
       if (!sale) throw new Error("No se encontró la venta.");
       if (sale.status !== "completed") throw new Error("Esta venta ya fue cancelada o no se puede cancelar.");
+
+      // La cancelación comparte el bloqueo de caja de la fecha original de la venta.
+      const dateParts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "America/Tijuana", year: "numeric", month: "2-digit", day: "2-digit",
+      }).formatToParts(sale.soldAt);
+      const datePart = (type: string) => dateParts.find(part => part.type === type)?.value ?? "";
+      const businessDate = datePart("year") + "-" + datePart("month") + "-" + datePart("day");
+      await tx.execute(sql.raw("select pg_advisory_xact_lock(hashtext('papeleria-cash:' || '" + businessDate + "'))"));
+      const [existingClosure] = await tx.select({ id: cashClosures.id })
+        .from(cashClosures).where(eq(cashClosures.businessDate, businessDate)).limit(1);
+      if (existingClosure) {
+        throw new Error("No se puede cancelar una venta de un día cuya caja ya fue cerrada. Registra el ajuste correspondiente con el administrador.");
+      }
 
       const items = await tx.select().from(saleItems).where(eq(saleItems.saleId, sale.id));
       if (!items.length) throw new Error("La venta no contiene productos y no puede cancelarse automáticamente.");
