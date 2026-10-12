@@ -75,7 +75,8 @@ export function StatusControl({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <p className="text-sm leading-6 text-gray-600">Selecciona el siguiente estado permitido para esta orden. El cambio se reflejará en el listado y en el detalle.</p>
       <div className="flex flex-col gap-3 sm:flex-row">
         <select
           aria-label="Nuevo estado de la orden"
@@ -84,7 +85,7 @@ export function StatusControl({
             setNextStatus(event.target.value as OrderStatus | "")
           }
           disabled={pending}
-          className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2"
+          className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-gray-900 shadow-sm outline-none transition focus:border-amber-400 focus:ring-2 focus:ring-amber-200 disabled:bg-gray-100"
         >
           <option value="">Selecciona un estado</option>
           {options.map((status) => (
@@ -98,14 +99,14 @@ export function StatusControl({
           type="button"
           onClick={handleUpdate}
           disabled={pending || !nextStatus}
-          className="rounded-lg bg-primary px-4 py-2 font-medium text-primary-foreground disabled:opacity-50"
+          className="inline-flex items-center justify-center rounded-xl bg-[#FFD400] px-5 py-2.5 font-bold text-gray-900 shadow-sm transition hover:bg-[#f2ca00] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-500 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {pending ? "Actualizando..." : "Actualizar estado"}
         </button>
       </div>
 
       {error && (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm font-medium text-red-800">
           {error}
         </p>
       )}
