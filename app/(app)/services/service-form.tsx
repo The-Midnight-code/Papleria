@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 
 import { useId, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -120,9 +121,7 @@ export function ServiceForm({ service }: ServiceFormProps) {
           placeholder="Describe qué incluye el servicio (opcional)"
           className={`${fieldClassName} min-h-28 resize-y leading-6`}
         />
-        <p className="mt-1.5 text-xs text-gray-500">
-          Máximo 5,000 caracteres.
-        </p>
+        <p className="mt-1.5 text-xs text-gray-500">Máximo 5,000 caracteres.</p>
       </div>
 
       <div>
