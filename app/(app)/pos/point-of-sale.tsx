@@ -111,3 +111,4 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
       <p className="text-center text-xs text-gray-400">Al confirmar se descontarán las existencias disponibles.</p>
     </aside>
   </div>;
+}
