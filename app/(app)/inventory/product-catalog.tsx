@@ -58,7 +58,7 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
       return /[;"\\n\\r]/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
     };
     // CSV estándar para Numbers: sin la directiva específica de Excel y con saltos de línea reales.
-    const csv = "\\uFEFF" + [headers, ...rows].map((row) => row.map(escapeCell).join(";")).join("\\r\\n");
+    const csv = "\uFEFF" + [headers, ...rows].map((row) => row.map(escapeCell).join(";")).join("\r\n");
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
