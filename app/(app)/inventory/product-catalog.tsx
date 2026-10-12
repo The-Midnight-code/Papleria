@@ -16,7 +16,7 @@ type Product = {
   active: boolean;
 };
 
-export function ProductCatalog({ products: initialProducts }: { products: Product[] }) {
+export function ProductCatalog({ products: initialProducts, isAdmin }: { products: Product[]; isAdmin: boolean }) {
   const [products, setProducts] = useState(initialProducts);
   const [query, setQuery] = useState("");
   const [stockFilter, setStockFilter] = useState("all");
@@ -38,7 +38,7 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
 
   const lowCount = products.filter((product) => product.active && product.stockQuantity > 0 && product.stockQuantity <= product.minStock).length;
   const outCount = products.filter((product) => product.active && product.stockQuantity === 0).length;
-  const stockValue = products.reduce((sum, product) => sum + Number(product.costPrice) * product.stockQuantity, 0);
+  const stockValue = isAdmin ? products.reduce((sum, product) => sum + Number(product.costPrice) * product.stockQuantity, 0) : 0;
   const alertProducts = products
     .filter((product) => product.active && (product.stockQuantity === 0 || product.stockQuantity <= product.minStock))
     .sort((a, b) => {
@@ -48,10 +48,10 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
     });
 
   function exportCsv() {
-    const headers = ["Producto", "SKU", "Categoría", "Descripción", "Precio de compra (MXN)", "Precio de venta (MXN)", "Existencias", "Stock mínimo", "Estado"];
+    const headers = isAdmin ? ["Producto", "SKU", "Categoría", "Descripción", "Precio de compra (MXN)", "Precio de venta (MXN)", "Existencias", "Stock mínimo", "Estado"] : ["Producto", "SKU", "Categoría", "Descripción", "Existencias", "Stock mínimo", "Estado"];
     const rows = visibleProducts.map((product) => {
       const status = !product.active ? "Inactivo" : product.stockQuantity === 0 ? "Agotado" : product.stockQuantity <= product.minStock ? "Stock bajo" : "Disponible";
-      return [product.name, product.sku, product.category, product.description ?? "", product.costPrice, product.salePrice, product.stockQuantity, product.minStock, status];
+      return isAdmin ? [product.name, product.sku, product.category, product.description ?? "", product.costPrice, product.salePrice, product.stockQuantity, product.minStock, status] : [product.name, product.sku, product.category, product.description ?? "", product.stockQuantity, product.minStock, status];
     });
     const escapeCell = (value: string | number) => {
       const text = String(value);
@@ -133,7 +133,7 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
     <div className="space-y-6">
       <section aria-label="Resumen del inventario" className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Productos registrados</p><p className="mt-1 text-2xl font-bold text-gray-900">{products.length}</p></article>
-        <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Valor al costo</p><p className="mt-1 text-2xl font-bold text-gray-900">{stockValue.toLocaleString("es-MX", { style: "currency", currency: "MXN" })}</p></article>
+        {isAdmin && <article className="rounded-2xl border border-white/60 bg-white/95 p-4 shadow-sm"><p className="text-sm font-medium text-gray-500">Valor al costo</p><p className="mt-1 text-2xl font-bold text-gray-900">{stockValue.toLocaleString("es-MX", { style: "currency", currency: "MXN" })}</p></article>}
         <button type="button" onClick={() => setStockFilter(stockFilter === "low" ? "all" : "low")} aria-pressed={stockFilter === "low"} className={"rounded-2xl border bg-white/95 p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md " + (stockFilter === "low" ? "border-amber-400 ring-2 ring-amber-200" : "border-white/60")}><p className="text-sm font-medium text-gray-500">Stock bajo</p><p className="mt-1 text-2xl font-bold text-amber-700">{lowCount}</p><p className="mt-1 text-xs text-gray-500">Ver productos por reabastecer</p></button>
         <button type="button" onClick={() => setStockFilter(stockFilter === "out" ? "all" : "out")} aria-pressed={stockFilter === "out"} className={"rounded-2xl border bg-white/95 p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-md " + (stockFilter === "out" ? "border-red-400 ring-2 ring-red-200" : "border-white/60")}><p className="text-sm font-medium text-gray-500">Agotados</p><p className="mt-1 text-2xl font-bold text-red-700">{outCount}</p><p className="mt-1 text-xs text-gray-500">Ver productos sin existencias</p></button>
       </section>
@@ -191,8 +191,8 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">SKU / código *</span><input name="sku" required maxLength={60} defaultValue={editingProduct.sku} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm uppercase text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Categoría *</span><input name="category" required maxLength={100} defaultValue={editingProduct.category} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Descripción</span><input name="description" maxLength={2000} defaultValue={editingProduct.description ?? ""} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
-              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de compra (MXN) *</span><input name="costPrice" required type="number" min="0" max="99999999" step="0.01" defaultValue={editingProduct.costPrice} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
-              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de venta (MXN) *</span><input name="salePrice" required type="number" min="0" max="99999999" step="0.01" defaultValue={editingProduct.salePrice} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              {isAdmin && <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de compra (MXN) *</span><input name="costPrice" required type="number" min="0" max="99999999" step="0.01" defaultValue={editingProduct.costPrice} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>}
+              {isAdmin && <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de venta (MXN) *</span><input name="salePrice" required type="number" min="0" max="99999999" step="0.01" defaultValue={editingProduct.salePrice} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>}
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Avisar cuando haya (o menos) *</span><input name="minStock" required type="number" min="0" max="9999999" step="1" defaultValue={editingProduct.minStock} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
             </div>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
@@ -210,8 +210,8 @@ export function ProductCatalog({ products: initialProducts }: { products: Produc
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">SKU / código *</span><input name="sku" required maxLength={60} placeholder="Ej. CUA-PRO-001" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm uppercase text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Categoría *</span><input name="category" required maxLength={100} placeholder="Ej. Cuadernos" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Descripción</span><input name="description" maxLength={2000} placeholder="Marca, tamaño, color..." className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
-              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de compra (MXN) *</span><input name="costPrice" required type="number" min="0" max="99999999" step="0.01" defaultValue="0" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
-              <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de venta (MXN) *</span><input name="salePrice" required type="number" min="0" max="99999999" step="0.01" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
+              {isAdmin && <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de compra (MXN) *</span><input name="costPrice" required type="number" min="0" max="99999999" step="0.01" defaultValue="0" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>}
+              {isAdmin && <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Precio de venta (MXN) *</span><input name="salePrice" required type="number" min="0" max="99999999" step="0.01" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>}
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Existencias iniciales *</span><input name="stockQuantity" required type="number" min="0" max="9999999" step="1" defaultValue="0" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
               <label className="space-y-1.5"><span className="text-sm font-semibold text-gray-700">Avisar cuando haya (o menos) *</span><input name="minStock" required type="number" min="0" max="9999999" step="1" defaultValue="5" className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label>
             </div>
