@@ -21,12 +21,27 @@ export function MovementManager({ products, history }: { products: Product[]; hi
   const [error,setError] = useState("");
   const [pending,startTransition] = useTransition();
   const [query,setQuery] = useState("");
+  const [historyType,setHistoryType] = useState("all");
+  const [dateFrom,setDateFrom] = useState("");
+  const [dateTo,setDateTo] = useState("");
   const selected = products.find(p=>p.id===productId);
   const productMatches = useMemo(() => {
     const q = productSearch.trim().toLocaleLowerCase("es-MX");
     return products.filter(p => p.active && (!q || p.name.toLocaleLowerCase("es-MX").includes(q) || p.sku.toLocaleLowerCase("es-MX").includes(q))).slice(0, 8);
   }, [products, productSearch]);
-  const visibleHistory = useMemo(()=>history.filter(m=>!query || [m.productName,m.sku,m.userName ?? "",typeLabels[m.type] ?? "",reasonLabels[m.reason] ?? ""].some(v=>v.toLocaleLowerCase("es-MX").includes(query.toLocaleLowerCase("es-MX")))),[history,query]);
+  const visibleHistory = useMemo(()=>{
+    const q = query.trim().toLocaleLowerCase("es-MX");
+    return history.filter(m=>{
+      const matchesQuery = !q || [m.productName,m.sku,m.userName ?? "",typeLabels[m.type] ?? "",reasonLabels[m.reason] ?? ""].some(v=>v.toLocaleLowerCase("es-MX").includes(q));
+      const matchesType = historyType === "all" || m.type === historyType;
+      const movementDate = new Date(m.createdAt);
+      const from = dateFrom ? new Date(dateFrom + "T00:00:00") : null;
+      const to = dateTo ? new Date(dateTo + "T23:59:59.999") : null;
+      return matchesQuery && matchesType && (!from || movementDate >= from) && (!to || movementDate <= to);
+    });
+  },[history,query,historyType,dateFrom,dateTo]);
+  const filtersActive = Boolean(query || historyType !== "all" || dateFrom || dateTo);
+  function clearHistoryFilters(){setQuery("");setHistoryType("all");setDateFrom("");setDateTo("");}
 
   function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); const formData = new FormData(event.currentTarget); setError("");
@@ -60,10 +75,10 @@ export function MovementManager({ products, history }: { products: Product[]; hi
       </form>
     </section>
     <section className="space-y-4 rounded-2xl border border-white/70 bg-white p-4 shadow-md sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-bold text-gray-900">Historial de movimientos</h2><p className="text-sm text-gray-500">Últimos 200 movimientos registrados.</p></div><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Buscar producto, SKU o responsable..." className="min-h-11 rounded-xl border border-gray-200 px-3.5 text-sm text-gray-900 sm:w-80" /></div>
+      <div className="space-y-4"><div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-bold text-gray-900">Historial de movimientos</h2><p className="text-sm text-gray-500">Últimos 200 movimientos registrados.</p></div><p className="text-sm font-medium text-gray-600">Mostrando {visibleHistory.length} de {history.length}</p></div><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4"><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Buscar</span><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Producto, SKU o responsable..." className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Tipo de movimiento</span><select value={historyType} onChange={e=>setHistoryType(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10"><option value="all">Todos los tipos</option><option value="entry">Entradas</option><option value="exit">Salidas</option><option value="adjustment">Ajustes</option></select></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Desde</span><input type="date" value={dateFrom} max={dateTo || undefined} onChange={e=>setDateFrom(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Hasta</span><input type="date" value={dateTo} min={dateFrom || undefined} onChange={e=>setDateTo(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 outline-none focus:border-[#176B7A] focus:ring-4 focus:ring-[#176B7A]/10" /></label></div><div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs text-gray-500">{filtersActive ? "Hay filtros aplicados al historial." : "Mostrando movimientos sin filtros adicionales."}</p>{filtersActive && <button type="button" onClick={clearHistoryFilters} className="self-start rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold text-[#176B7A] transition hover:bg-[#176B7A]/5 sm:self-auto">Limpiar filtros</button>}</div></div>
       <div className="overflow-x-auto rounded-xl border border-gray-100"><table className="w-full min-w-[950px] text-left"><thead className="bg-gray-50"><tr>{["Fecha","Producto","Tipo / motivo","Cantidad","Existencias","Responsable","Notas"].map(label=><th key={label} className="px-4 py-3 text-xs font-semibold uppercase tracking-wide text-gray-500">{label}</th>)}</tr></thead>
       <tbody className="divide-y divide-gray-100">{visibleHistory.map(m=><tr key={m.id} className="hover:bg-gray-50"><td className="whitespace-nowrap px-4 py-3 text-sm text-gray-600">{new Date(m.createdAt).toLocaleDateString("es-MX",{day:"2-digit",month:"short",year:"numeric"})} <span className="text-gray-400">{new Date(m.createdAt).toLocaleTimeString("es-MX",{hour:"2-digit",minute:"2-digit"})}</span></td><td className="px-4 py-3"><p className="font-semibold text-gray-900">{m.productName}</p><p className="text-xs text-gray-500">{m.sku}</p></td><td className="px-4 py-3"><span className={"inline-flex rounded-full px-2.5 py-1 text-xs font-bold "+(m.type==="entry"?"bg-emerald-50 text-emerald-700":m.type==="exit"?"bg-red-50 text-red-700":"bg-amber-50 text-amber-800")}>{typeLabels[m.type]}</span><p className="mt-1 text-xs text-gray-500">{reasonLabels[m.reason]??m.reason}</p></td><td className="px-4 py-3 font-semibold text-gray-900">{m.type==="entry"?"+":m.type==="exit"?"−":""}{m.quantity}</td><td className="px-4 py-3 text-sm text-gray-700">{m.stockBefore} → <span className="font-bold">{m.stockAfter}</span></td><td className="px-4 py-3 text-sm text-gray-600">{m.userName??"Usuario eliminado"}</td><td className="max-w-xs px-4 py-3 text-sm text-gray-600">{m.notes||"—"}</td></tr>)}
-      {visibleHistory.length===0&&<tr><td colSpan={7} className="px-5 py-10 text-center text-sm text-gray-500">No hay movimientos que coincidan con la búsqueda.</td></tr>}</tbody></table></div>
+      {visibleHistory.length===0&&<tr><td colSpan={7} className="px-5 py-10 text-center text-sm text-gray-500">No hay movimientos que coincidan con los filtros seleccionados.</td></tr>}</tbody></table></div>
     </section>
   </div>;
 }
