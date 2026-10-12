@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, inArray } from "drizzle-orm";
 
 import { db } from "@/db/db";
 import { serviceOrderPayments, serviceOrders } from "@/db/schema";
@@ -56,6 +56,7 @@ export default async function ServiceOrdersPage() {
       createdAt: serviceOrders.createdAt,
     })
     .from(serviceOrders)
+    .where(inArray(serviceOrders.status, ["AWAITING_DEPOSIT", "IN_PROGRESS", "READY"]))
     .orderBy(desc(serviceOrders.createdAt));
 
   const payments = await db
@@ -97,7 +98,7 @@ export default async function ServiceOrdersPage() {
       <section className="grid gap-4 sm:grid-cols-3">
         <article className="rounded-2xl border border-white/60 bg-white/95 p-5 shadow-sm transition hover:shadow-md">
           <p className="text-sm font-semibold text-gray-500">
-            Total de órdenes
+            Órdenes activas
           </p>
           <p className="mt-2 text-2xl font-bold text-gray-900">
             {orders.length}
