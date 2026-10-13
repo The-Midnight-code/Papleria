@@ -10,7 +10,6 @@ const reasonLabels: Record<string, string> = {
   purchase: "Compra", return: "Devolución", other: "Otro", sale: "Venta",
   damage: "Producto dañado", loss: "Pérdida", count_correction: "Corrección de conteo",
 };
-const money = (value: number) => value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
 const monthLabel = (key: string) => {
   const [year, month] = key.split("-").map(Number);
   return new Date(year, month - 1, 1).toLocaleDateString("es-MX", { month: "long", year: "numeric" });
@@ -38,6 +37,8 @@ export function MonthlyInventoryReport({ initialMovements, initialMonth }: { ini
     });
     return () => { active = false; };
   }, [selectedMonth, initialMonth, initialMovements]);
+
+  const monthly = useMemo(() => movements.slice().sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [movements]);
 
   const summary = useMemo(() => {
     const result = { entries: 0, exits: 0, adjustments: 0, unitsIn: 0, unitsOut: 0, damaged: 0, lost: 0 };
