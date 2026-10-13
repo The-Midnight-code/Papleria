@@ -62,7 +62,6 @@ export async function getMonthlyInventoryReport(month: string): Promise<MonthlyI
   await requireAdmin();
   if (!isValidMonth(month)) throw new Error("Selecciona un mes válido.");
 
-  const [year, monthNumber] = month.split("-").map(Number);
   const startDate = month + "-01";
   const endDate = nextMonthStart(month);
   const start = tijuanaMidnightUtc(startDate);
