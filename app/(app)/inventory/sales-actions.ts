@@ -13,6 +13,8 @@ const cents = (value: number) => Math.round((value + Number.EPSILON) * 100);
 export async function registerSale(formData: FormData) {
   try {
     const user = await requireEmployeeOrAdmin();
+    const idempotencyKey = String(formData.get("idempotencyKey") ?? "").trim();
+    if (!uuidPattern.test(idempotencyKey)) return { error: "La solicitud de venta no es válida. Actualiza la pantalla e inténtalo de nuevo." };
     const paymentMethod = String(formData.get("paymentMethod") ?? "");
     const amountReceivedRaw = String(formData.get("amountReceived") ?? "0").trim();
     const notes = String(formData.get("notes") ?? "").trim() || null;
@@ -43,6 +45,10 @@ export async function registerSale(formData: FormData) {
     if (!Number.isFinite(received) || received > 9999999999.99) return { error: "El importe recibido supera el límite permitido." };
 
     const result = await db.transaction(async tx => {
+      // Serializa los reintentos con la misma clave incluso si ocurren en días distintos.
+      await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${`papeleria-sale:${idempotencyKey}`}))`);
+      const [existingSale] = await tx.select({ id: sales.id, folio: sales.folio }).from(sales).where(eq(sales.idempotencyKey, idempotencyKey)).limit(1);
+      if (existingSale) return existingSale;
       // Serializa ventas y cierre para impedir que una venta entre mientras se cierra la caja.
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext('papeleria-cash:' || ((now() AT TIME ZONE 'America/Tijuana')::date)::text))`);
       const [closedDay] = await tx.select({id:cashClosures.id}).from(cashClosures).where(sql`business_date = (now() AT TIME ZONE 'America/Tijuana')::date`).limit(1);
@@ -82,7 +88,7 @@ export async function registerSale(formData: FormData) {
       const changeCents = paymentMethod === "cash" ? receivedCents-totalCents : 0;
       const folio = `V-${now.toISOString().slice(0,10).replace(/-/g,"")}-${crypto.randomUUID().slice(0,8).toUpperCase()}`;
       const [sale] = await tx.insert(sales).values({
-        folio,paymentMethod,subtotal:(subtotalCents/100).toFixed(2),discountTotal:((subtotalCents-totalCents)/100).toFixed(2),total:(totalCents/100).toFixed(2),
+        folio,idempotencyKey,paymentMethod,subtotal:(subtotalCents/100).toFixed(2),discountTotal:((subtotalCents-totalCents)/100).toFixed(2),total:(totalCents/100).toFixed(2),
         amountReceived:(amountToStore/100).toFixed(2),changeDue:(changeCents/100).toFixed(2),notes,soldBy:user.id,soldAt:now,
       }).returning({id:sales.id,folio:sales.folio,total:sales.total});
       let manualRemaining = manualCents;
