@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { asc, desc, eq } from "drizzle-orm";
+import { asc, desc } from "drizzle-orm";
 import { db } from "@/db/db";
 import { inventoryMovements, products, purchaseItems, purchases } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
