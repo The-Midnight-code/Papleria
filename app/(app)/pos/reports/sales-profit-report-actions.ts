@@ -99,8 +99,8 @@ export async function getSalesProfitReport(filters: SalesProfitReportFilters): P
     .from(sales)
     .leftJoin(users, eq(sales.soldBy, users.id))
     .where(and(
-      sql\`(\${sales.soldAt} AT TIME ZONE 'America/Tijuana')::date >= \${filters.from}::date\`,
-      sql\`(\${sales.soldAt} AT TIME ZONE 'America/Tijuana')::date <= \${filters.to}::date\`,
+      gte(sales.soldAt, start),
+      lt(sales.soldAt, end),
       filters.status === "all" ? undefined : eq(sales.status, filters.status),
     ))
     .orderBy(desc(sales.soldAt));
