@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LogOut, Menu } from "lucide-react";
 import { ReminderBell } from "./reminders/reminder-bell";
+import Image from "next/image";
+import PapeLogo from "@/public/Pape.png";
 
 type NavbarProps = {
   user: {
@@ -39,7 +41,7 @@ export default function Navbar({ user }: NavbarProps) {
           href="/dashboard"
           className="shrink-0 text-xl font-black tracking-tight text-white"
         >
-          PAPE
+          <Image alt="La pape" src={PapeLogo} width={40} height={40} />
         </Link>
 
         {/* Desktop navigation */}
