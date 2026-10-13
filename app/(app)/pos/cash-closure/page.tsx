@@ -3,7 +3,7 @@ import { desc, eq, sql } from "drizzle-orm";
 import { db } from "@/db/db";
 import { cashClosures, cashRegisterMovements, sales, users } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
-import { CashClosureManager } from "./cash-closure-manager";
+import { CashClosureManager } from "../cash-closure-manager";
 
 function localDate() {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: "America/Tijuana", year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(new Date());
