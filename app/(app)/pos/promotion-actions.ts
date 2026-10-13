@@ -23,12 +23,15 @@ export async function createPromotion(formData: FormData) {
     if (!startsRaw || !endsRaw || !Number.isFinite(startsAt.getTime()) || !Number.isFinite(endsAt.getTime()) || endsAt <= startsAt) return { error: "La fecha final debe ser posterior a la inicial." };
     let productId: string | null = null;
     if (productIdRaw) {
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(productIdRaw)) return { error: "El producto seleccionado no es válido." };
       const [product] = await db.select({id:products.id}).from(products).where(eq(products.id,productIdRaw)).limit(1);
       if (!product) return { error: "El producto seleccionado no existe." };
       productId = product.id;
     }
-    const [promotion] = await db.insert(promotions).values({name,productId,discountType,discountValue:discountValue.toFixed(2),startsAt,endsAt,createdBy:user.id}).returning({id:promotions.id});
-    await db.insert(activityLogs).values({userId:user.id,module:"sales",action:"CREATE_PROMOTION",entityType:"promotion",entityId:promotion.id,newValue:name,metadata:{productId,discountType,discountValue,startsAt:startsAt.toISOString(),endsAt:endsAt.toISOString()}});
+    await db.transaction(async (tx) => {
+      const [promotion] = await tx.insert(promotions).values({name,productId,discountType,discountValue:discountValue.toFixed(2),startsAt,endsAt,createdBy:user.id}).returning({id:promotions.id});
+      await tx.insert(activityLogs).values({userId:user.id,module:"sales",action:"CREATE_PROMOTION",entityType:"promotion",entityId:promotion.id,newValue:name,metadata:{productId,discountType,discountValue,startsAt:startsAt.toISOString(),endsAt:endsAt.toISOString()}});
+    });
     for (const path of ["/pos","/pos/promotions"]) revalidatePath(path);
     return {success:true};
   } catch(error) { return {error:error instanceof Error?error.message:"No fue posible crear la oferta."}; }
@@ -38,9 +41,13 @@ export async function setPromotionActive(id: string, active: boolean) {
   try {
     const user = await requireAdmin();
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id) || typeof active !== "boolean") return {error:"La oferta seleccionada no es válida."};
-    const [updated] = await db.update(promotions).set({active}).where(eq(promotions.id,id)).returning({id:promotions.id,name:promotions.name});
+    const updated = await db.transaction(async (tx) => {
+      const [promotion] = await tx.update(promotions).set({active}).where(eq(promotions.id,id)).returning({id:promotions.id,name:promotions.name});
+      if (!promotion) return null;
+      await tx.insert(activityLogs).values({userId:user.id,module:"sales",action:active?"ACTIVATE_PROMOTION":"DEACTIVATE_PROMOTION",entityType:"promotion",entityId:id,newValue:promotion.name});
+      return promotion;
+    });
     if (!updated) return {error:"La oferta ya no existe."};
-    await db.insert(activityLogs).values({userId:user.id,module:"sales",action:active?"ACTIVATE_PROMOTION":"DEACTIVATE_PROMOTION",entityType:"promotion",entityId:id,newValue:updated.name});
     revalidatePath("/pos"); revalidatePath("/pos/promotions");
     return {success:true};
   } catch(error) { return {error:error instanceof Error?error.message:"No fue posible actualizar la oferta."}; }
