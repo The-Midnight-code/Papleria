@@ -48,7 +48,7 @@ function tijuanaMidnightUtc(date: string) {
 }
 
 function isValidMonth(value: string) {
-  if (!/^\\d{4}-\\d{2}$/.test(value)) return false;
+  if (!/^\d{4}-\d{2}$/.test(value)) return false;
   const [year, month] = value.split("-").map(Number);
   return year >= 2000 && month >= 1 && month <= 12;
 }
