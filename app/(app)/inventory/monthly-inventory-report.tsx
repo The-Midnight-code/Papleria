@@ -11,10 +11,6 @@ const reasonLabels: Record<string, string> = {
   damage: "Producto dañado", loss: "Pérdida", count_correction: "Corrección de conteo",
 };
 const money = (value: number) => value.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
-const monthKey = (date: string) => {
-  const d = new Date(date);
-  return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-};
 const monthLabel = (key: string) => {
   const [year, month] = key.split("-").map(Number);
   return new Date(year, month - 1, 1).toLocaleDateString("es-MX", { month: "long", year: "numeric" });
@@ -28,6 +24,11 @@ export function MonthlyInventoryReport({ initialMovements, initialMonth }: { ini
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
+    if (selectedMonth === initialMonth) {
+      setMovements(initialMovements);
+      setError(null);
+      return;
+    }
     let active = true;
     setError(null);
     startTransition(() => {
@@ -36,7 +37,7 @@ export function MonthlyInventoryReport({ initialMovements, initialMonth }: { ini
         .catch(() => { if (active) setError("No se pudo cargar el reporte de ese mes. Intenta nuevamente."); });
     });
     return () => { active = false; };
-  }, [selectedMonth]);
+  }, [selectedMonth, initialMonth, initialMovements]);
 
   const summary = useMemo(() => {
     const result = { entries: 0, exits: 0, adjustments: 0, unitsIn: 0, unitsOut: 0, damaged: 0, lost: 0 };
