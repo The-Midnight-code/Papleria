@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lt } from "drizzle-orm";
 import { db } from "@/db/db";
 import { saleItems, sales, users } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/authorization";
@@ -27,6 +27,44 @@ export type SalesProfitReportRow = {
   units: number;
 };
 
+function tijuanaMidnightUtc(date: string) {
+  const target = Date.parse(date + "T00:00:00.000Z");
+  let guess = target;
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Tijuana",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hourCycle: "h23",
+  });
+
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const parts = formatter.formatToParts(new Date(guess));
+    const get = (type: string) => Number(parts.find((part) => part.type === type)?.value ?? 0);
+    const representedAsUtc = Date.UTC(
+      get("year"),
+      get("month") - 1,
+      get("day"),
+      get("hour"),
+      get("minute"),
+      get("second"),
+    );
+    const correction = target - representedAsUtc;
+    guess += correction;
+    if (correction === 0) break;
+  }
+  return new Date(guess);
+}
+
+function nextDate(date: string) {
+  const parsed = new Date(date + "T00:00:00.000Z");
+  parsed.setUTCDate(parsed.getUTCDate() + 1);
+  return parsed.toISOString().slice(0, 10);
+}
+
 function isValidDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = new Date(value + "T00:00:00.000Z");
@@ -42,6 +80,9 @@ export async function getSalesProfitReport(filters: SalesProfitReportFilters): P
   if (!["all", "completed", "cancelled"].includes(filters.status)) {
     throw new Error("El estado seleccionado no es válido.");
   }
+
+  const start = tijuanaMidnightUtc(filters.from);
+  const end = tijuanaMidnightUtc(nextDate(filters.to));
 
   const rows = await db.select({
     id: sales.id,
