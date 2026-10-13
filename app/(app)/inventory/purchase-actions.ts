@@ -43,7 +43,8 @@ export async function registerPurchase(formData: FormData) {
 
     await db.transaction(async (tx) => {
       const lockedProducts = [];
-      for (const item of submitted) {
+      // Bloquear siempre en el mismo orden evita deadlocks entre compras concurrentes.
+      for (const item of [...submitted].sort((a, b) => a.productId.localeCompare(b.productId))) {
         const [product] = await tx.select().from(products).where(eq(products.id, item.productId)).for("update").limit(1);
         if (!product) throw new Error("Uno de los productos ya no existe. Actualiza la página e inténtalo de nuevo.");
         if (!product.active) throw new Error(`El producto "${product.name}" está inactivo y no puede recibirse en una compra.`);
