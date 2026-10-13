@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useMemo, useRef, useState, useTransition } from "react";
 import { registerSale } from "../inventory/sales-actions";
 
 type Product = { id: string; name: string; sku: string; category: string; salePrice: string; promoPrice?: string; promotionName?: string | null; stockQuantity: number; active: boolean };
@@ -18,6 +18,7 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
   const [manualDiscountValue, setManualDiscountValue] = useState("");
   const [error, setError] = useState("");
   const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const idempotencyKeyRef = useRef<string | null>(null);
   const [pending, startTransition] = useTransition();
   const matches = useMemo(() => {
     const q = query.trim().toLocaleLowerCase("es-MX");
@@ -55,6 +56,9 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
     if (paymentMethod !== "cash") setAmountReceived((totalCents / 100).toFixed(2));
     if (!window.confirm("¿Confirmar la venta por " + money(total) + "? Se descontarán las existencias y se guardará el historial.")) return;
     const formData = new FormData();
+    const idempotencyKey = idempotencyKeyRef.current ?? crypto.randomUUID();
+    idempotencyKeyRef.current = idempotencyKey;
+    formData.set("idempotencyKey", idempotencyKey);
     formData.set("items", JSON.stringify(lines.map(line => ({ productId: line.productId, quantity: line.quantity }))));
     formData.set("paymentMethod", paymentMethod);
     formData.set("amountReceived", paymentMethod === "cash" ? amountReceived : (totalCents / 100).toFixed(2));
@@ -62,9 +66,16 @@ export function PointOfSale({ products, isAdmin }: { products: Product[]; isAdmi
     formData.set("manualDiscountType", isAdmin ? manualDiscountType : "none");
     formData.set("manualDiscountValue", isAdmin ? manualDiscountValue || "0" : "0");
     startTransition(async () => {
-      const result = await registerSale(formData);
-      if (result.error) { setError(result.error); return; }
-      if (result.sale) { setReceipt(result.sale); setCart([]); setAmountReceived(""); setNotes(""); setQuery(""); setManualDiscountType("none"); setManualDiscountValue(""); }
+      try {
+        const result = await registerSale(formData);
+        if (result.error) { setError(result.error); return; }
+        if (result.sale) {
+          idempotencyKeyRef.current = null;
+          setReceipt(result.sale); setCart([]); setAmountReceived(""); setNotes(""); setQuery(""); setManualDiscountType("none"); setManualDiscountValue("");
+        }
+      } catch {
+        setError("No se pudo confirmar la respuesta del servidor. Puedes reintentar sin duplicar la venta.");
+      }
     });
   }
 
