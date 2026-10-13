@@ -1,4 +1,4 @@
-import { boolean, check, index, integer, numeric, pgTable, timestamp, uuid, varchar } from "drizzle-orm/pg-core";
+import { boolean, check, index, integer, numeric, pgTable, timestamp, uniqueIndex, uuid, varchar } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 import { users } from "./users";
 import { products } from "./products";
@@ -26,6 +26,7 @@ export const promotions = pgTable("promotions", {
 export const sales = pgTable("sales", {
   id: uuid("id").defaultRandom().primaryKey(),
   folio: varchar("folio", { length: 40 }).notNull().unique(),
+  idempotencyKey: varchar("idempotency_key", { length: 36 }),
   paymentMethod: varchar("payment_method", { length: 20 }).notNull(),
   subtotal: numeric("subtotal", { precision: 12, scale: 2 }).notNull(),
   discountTotal: numeric("discount_total", { precision: 12, scale: 2 }).notNull().default("0"),
@@ -48,6 +49,7 @@ export const sales = pgTable("sales", {
   check("sales_total_nonnegative", sql`${table.total} >= 0`),
   check("sales_amount_received_nonnegative", sql`${table.amountReceived} >= 0`),
   check("sales_change_due_nonnegative", sql`${table.changeDue} >= 0`),
+  uniqueIndex("sales_idempotency_key_unique").on(table.idempotencyKey),
   index("sales_sold_at_idx").on(table.soldAt),
   index("sales_sold_by_idx").on(table.soldBy),
   index("sales_payment_method_idx").on(table.paymentMethod),
