@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/authorization";
-import { SalesProfitReport } from "./sales-profit-report";
+import { SalesProfitReport } from "../sales-profit-report";
 import { getSalesProfitReport } from "./sales-profit-report-actions";
 
 function localDate() {
