@@ -3,7 +3,7 @@
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db/db";
-import { activityLogs, products } from "@/db/schema";
+import { activityLogs, inventoryMovements, products } from "@/db/schema";
 import { requireEmployeeOrAdmin } from "@/lib/auth/authorization";
 
 function parsePrice(value: FormDataEntryValue | null, label: string) {
@@ -51,7 +51,8 @@ export async function createProduct(formData: FormData) {
     const user = await requireEmployeeOrAdmin();
     const parsed = getProductFields(formData);
     if ("error" in parsed) return { error: parsed.error };
-    const stockQuantity = parseCount(formData.get("stockQuantity"), "Las existencias");
+    const requestedStock = parseCount(formData.get("stockQuantity"), "Las existencias");
+    const stockQuantity = user.role === "ADMIN" ? requestedStock : 0;
     const productValues = user.role === "ADMIN" ? parsed.values : { ...parsed.values, costPrice: "0.00", salePrice: "0.00" };
 
     const result = await db.transaction(async (tx) => {
@@ -61,6 +62,19 @@ export async function createProduct(formData: FormData) {
         active: user.role === "ADMIN",
         createdBy: user.id,
       }).returning({ id: products.id, name: products.name, sku: products.sku });
+
+      if (stockQuantity > 0) {
+        await tx.insert(inventoryMovements).values({
+          productId: product.id,
+          userId: user.id,
+          type: "entry",
+          reason: "other",
+          quantity: stockQuantity,
+          stockBefore: 0,
+          stockAfter: stockQuantity,
+          notes: "Existencia inicial registrada al crear el producto.",
+        });
+      }
 
       await tx.insert(activityLogs).values({
         userId: user.id,
