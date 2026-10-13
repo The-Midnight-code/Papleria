@@ -1,24 +1,34 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { getSalesProfitReport, type SalesProfitReportRow } from "./reports/sales-profit-report-actions";
 
-type Sale = {
-  id:string; folio:string; paymentMethod:string; subtotal:string; discountTotal:string; total:string;
-  status:string; soldAt:string; cancellationReason:string|null; userName:string|null;
-  cost:string; profit:string; units:number;
-};
+type Sale = SalesProfitReportRow;
 const money=(value:number)=>value.toLocaleString("es-MX",{style:"currency",currency:"MXN"});
 const paymentLabels:Record<string,string>={cash:"Efectivo",card:"Tarjeta",transfer:"Transferencia"};
-const localDay=(value:string)=>new Intl.DateTimeFormat("en-CA",{timeZone:"America/Tijuana",year:"numeric",month:"2-digit",day:"2-digit"}).format(new Date(value));
 
 export function SalesProfitReport({sales,defaultFrom,defaultTo}:{sales:Sale[];defaultFrom:string;defaultTo:string}) {
   const [from,setFrom]=useState(defaultFrom);
   const [to,setTo]=useState(defaultTo);
-  const [status,setStatus]=useState("all");
-  const visible=useMemo(()=>sales.filter(s=>{
-    const day=localDay(s.soldAt);
-    return day>=from&&day<=to&&(status==="all"||s.status===status);
-  }),[sales,from,to,status]);
+  const [status,setStatus]=useState<"all"|"completed"|"cancelled">("all");
+  const [visible,setVisible]=useState<Sale[]>(sales);
+  const [reportError,setReportError]=useState("");
+  const [isPending,startTransition]=useTransition();
+
+  useEffect(()=>{
+    let current=true;
+    if(!from||!to||from>to){
+      setVisible([]);
+      setReportError("");
+      return ()=>{current=false;};
+    }
+    startTransition(()=>{
+      getSalesProfitReport({from,to,status})
+        .then(rows=>{if(current){setVisible(rows);setReportError("");}})
+        .catch(()=>{if(current){setReportError("No se pudo actualizar el reporte. Verifica las fechas e inténtalo de nuevo.");}});
+    });
+    return ()=>{current=false;};
+  },[from,to,status]);
   const completed=visible.filter(s=>s.status==="completed");
   const cancelled=visible.filter(s=>s.status==="cancelled");
   const sum=(list:Sale[],pick:(s:Sale)=>number)=>list.reduce((total,s)=>total+pick(s),0);
@@ -39,8 +49,9 @@ export function SalesProfitReport({sales,defaultFrom,defaultTo}:{sales:Sale[];de
       {[["Ventas netas",money(netSales),"Después de descuentos"],["Costo de mercancía",money(costs),"Costos guardados al vender"],["Utilidad bruta",money(profit),netSales>0?"Margen: "+(profit/netSales*100).toLocaleString("es-MX",{maximumFractionDigits:1})+"%":"Sin ventas netas"],["Descuentos",money(discounts),"En ventas completadas"]].map(([label,value,note])=><div key={label} className="rounded-2xl bg-white p-4 shadow-md"><p className="text-xs font-bold uppercase tracking-wide text-gray-500">{label}</p><p className="mt-2 text-2xl font-black text-gray-900">{value}</p><p className="mt-1 text-xs text-gray-500">{note}</p></div>)}
     </section>
     <section className="space-y-4 rounded-2xl bg-white p-4 shadow-md sm:p-6">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-lg font-bold text-gray-900">Periodo del reporte</h2><p className="text-sm text-gray-500">Puedes elegir cualquier fecha entre los últimos 5,000 registros disponibles.</p></div><button onClick={exportCsv} disabled={!visible.length} className="min-h-10 rounded-xl bg-[#176B7A] px-4 py-2 text-sm font-bold text-white hover:bg-[#125765] disabled:opacity-50">↓ Exportar CSV</button></div>
-      <div className="grid gap-3 sm:grid-cols-3"><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Desde</span><input type="date" value={from} max={to||undefined} onChange={e=>setFrom(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-900"/></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Hasta</span><input type="date" value={to} min={from||undefined} onChange={e=>setTo(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-900"/></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Estado</span><select value={status} onChange={e=>setStatus(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-900"><option value="all">Todos</option><option value="completed">Completadas</option><option value="cancelled">Canceladas</option></select></label></div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><h2 className="text-lg font-bold text-gray-900">Periodo del reporte</h2><p className="text-sm text-gray-500">Los filtros consultan directamente las ventas del periodo seleccionado.</p></div><button onClick={exportCsv} disabled={!visible.length||isPending} className="min-h-10 rounded-xl bg-[#176B7A] px-4 py-2 text-sm font-bold text-white hover:bg-[#125765] disabled:opacity-50">↓ Exportar CSV</button></div>
+      <div className="grid gap-3 sm:grid-cols-3"><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Desde</span><input type="date" value={from} max={to||undefined} onChange={e=>setFrom(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-900"/></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Hasta</span><input type="date" value={to} min={from||undefined} onChange={e=>setTo(e.target.value)} className="min-h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-900"/></label><label className="space-y-1.5"><span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Estado</span><select value={status} onChange={e=>setStatus(e.target.value as "all"|"completed"|"cancelled")} className="min-h-11 w-full rounded-xl border border-gray-200 px-3 text-sm text-gray-900"><option value="all">Todos</option><option value="completed">Completadas</option><option value="cancelled">Canceladas</option></select></label></div>
+      {reportError&&<p role="alert" className="rounded-xl bg-red-50 p-3 text-sm font-medium text-red-700">{reportError}</p>}{isPending&&<p className="text-sm text-gray-500">Actualizando reporte…</p>}
       <div className="grid gap-3 sm:grid-cols-3"><div className="rounded-xl bg-gray-50 p-3"><p className="text-xs font-semibold text-gray-500">Ventas completadas</p><p className="mt-1 text-xl font-bold text-gray-900">{completed.length}</p></div><div className="rounded-xl bg-gray-50 p-3"><p className="text-xs font-semibold text-gray-500">Cancelaciones</p><p className="mt-1 text-xl font-bold text-red-700">{cancelled.length}</p></div><div className="rounded-xl bg-gray-50 p-3"><p className="text-xs font-semibold text-gray-500">Unidades vendidas</p><p className="mt-1 text-xl font-bold text-gray-900">{sum(completed,s=>s.units).toLocaleString("es-MX")}</p></div></div>
     </section>
     <section className="rounded-2xl bg-white p-4 shadow-md sm:p-6"><h2 className="text-lg font-bold text-gray-900">Desglose por método de pago</h2><div className="mt-4 grid gap-3 md:grid-cols-3">{byPayment.map(item=><div key={item.method} className="rounded-xl border border-gray-100 p-4"><p className="text-sm font-semibold text-gray-500">{paymentLabels[item.method]}</p><p className="mt-2 text-xl font-black text-[#176B7A]">{money(item.total)}</p><p className="mt-1 text-xs text-gray-500">{item.count} ventas</p></div>)}</div><p className="mt-3 text-xs text-gray-500">Las ventas canceladas no suman a ventas netas, costos ni utilidad. La utilidad es bruta: no descuenta gastos operativos, comisiones ni impuestos.</p></section>
