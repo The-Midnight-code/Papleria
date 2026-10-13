@@ -1,20 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { getMonthlyInventoryReport, type MonthlyInventoryMovement } from "./monthly-report/monthly-report-actions";
 
-type Movement = {
-  id: string;
-  productName: string;
-  sku: string;
-  type: string;
-  reason: string;
-  quantity: number;
-  stockBefore: number;
-  stockAfter: number;
-  notes: string | null;
-  createdAt: string;
-  userName: string | null;
-};
+type Movement = MonthlyInventoryMovement;
 
 const typeLabels: Record<string, string> = { entry: "Entrada", exit: "Salida", adjustment: "Ajuste" };
 const reasonLabels: Record<string, string> = {
@@ -31,17 +20,24 @@ const monthLabel = (key: string) => {
   return new Date(year, month - 1, 1).toLocaleDateString("es-MX", { month: "long", year: "numeric" });
 };
 
-export function MonthlyInventoryReport({ movements }: { movements: Movement[] }) {
-  const currentMonth = monthKey(new Date().toISOString());
+export function MonthlyInventoryReport({ initialMovements, initialMonth }: { initialMovements: Movement[]; initialMonth: string }) {
+  const currentMonth = initialMonth;
+  const [movements, setMovements] = useState<Movement[]>(initialMovements);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-  const availableMonths = useMemo(() => {
-    const values = new Set(movements.map((m) => monthKey(m.createdAt)));
-    values.add(currentMonth);
-    return [...values].sort((a, b) => b.localeCompare(a));
-  }, [movements, currentMonth]);
-  const monthly = useMemo(() => movements
-    .filter((m) => monthKey(m.createdAt) === selectedMonth)
-    .sort((a, b) => a.createdAt.localeCompare(b.createdAt)), [movements, selectedMonth]);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
+
+  useEffect(() => {
+    let active = true;
+    setError(null);
+    startTransition(() => {
+      getMonthlyInventoryReport(selectedMonth)
+        .then((result) => { if (active) setMovements(result); })
+        .catch(() => { if (active) setError("No se pudo cargar el reporte de ese mes. Intenta nuevamente."); });
+    });
+    return () => { active = false; };
+  }, [selectedMonth]);
+
   const summary = useMemo(() => {
     const result = { entries: 0, exits: 0, adjustments: 0, unitsIn: 0, unitsOut: 0, damaged: 0, lost: 0 };
     for (const movement of monthly) {
@@ -103,11 +99,13 @@ export function MonthlyInventoryReport({ movements }: { movements: Movement[] })
   return <section className="space-y-5 rounded-2xl border border-white/70 bg-white p-4 shadow-md sm:p-6">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-[#176B7A]">Análisis por periodo</p><h2 className="mt-1 text-xl font-bold text-gray-900">Reporte mensual</h2><p className="mt-1 text-sm text-gray-500">Resumen de entradas, salidas, ajustes y actividad por producto.</p></div>
-      <div className="flex flex-wrap gap-2">
-        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700"><span>Mes</span><select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} className="min-h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900">{availableMonths.map((month) => <option key={month} value={month}>{monthLabel(month)}</option>)}</select></label>
-        <button type="button" onClick={exportCsv} disabled={monthly.length === 0} className="min-h-10 rounded-xl border border-[#176B7A]/25 bg-white px-4 py-2 text-sm font-bold text-[#176B7A] hover:bg-[#176B7A]/5 disabled:cursor-not-allowed disabled:opacity-50">Exportar mes CSV</button>
+      <div className="flex flex-wrap items-end gap-2">
+        <label className="flex items-center gap-2 text-sm font-semibold text-gray-700"><span>Mes</span><input type="month" value={selectedMonth} max={currentMonth} onChange={(e) => setSelectedMonth(e.target.value)} className="min-h-10 rounded-lg border border-gray-200 bg-white px-3 text-sm text-gray-900" /></label>
+        <button type="button" onClick={exportCsv} disabled={monthly.length === 0 || isPending} className="min-h-10 rounded-xl border border-[#176B7A]/25 bg-white px-4 py-2 text-sm font-bold text-[#176B7A] hover:bg-[#176B7A]/5 disabled:cursor-not-allowed disabled:opacity-50">Exportar mes CSV</button>
       </div>
     </div>
+    {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</p>}
+    {isPending && <p className="text-sm text-gray-500">Cargando movimientos de {monthLabel(selectedMonth)}…</p>}
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">{cards.map((card) => <article key={card.label} className="rounded-xl border border-gray-100 bg-gray-50 p-4"><p className="text-sm font-medium text-gray-500">{card.label}</p><p className="mt-1 text-2xl font-bold text-gray-900">{card.value}</p><p className="mt-1 text-xs text-gray-500">{card.note}</p></article>)}</div>
     <div className="grid gap-3 sm:grid-cols-2">
       <article className="rounded-xl border border-red-100 bg-red-50/60 p-4"><p className="text-sm font-semibold text-red-900">Productos dañados</p><p className="mt-1 text-2xl font-bold text-red-800">{summary.damaged.toLocaleString("es-MX")} unidades</p></article>
